@@ -101,7 +101,7 @@ namespace net {
 
 		// TODO: implement select as a timeout
 
-		// Read until stream is filled
+		// Write until stream is filled
 		while(total < static_cast<int>(size)) {
 			try {
 				ret = Write((uint8_t *)buffer + total, size - total);
