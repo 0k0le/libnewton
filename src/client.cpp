@@ -18,10 +18,12 @@ namespace net {
 		try {
 		
 			memset(&m_clientaddr, 0, sizeof(m_clientaddr));
-			m_clientaddr.sin_port = port;
+			m_clientaddr.sin_port = htons(port);
 			m_clientaddr.sin_addr.s_addr = inet_addr(address.c_str());
 			m_clientaddr.sin_family = AF_INET;
 
+			DEBUG("Server Address: %s", address.c_str());
+			DEBUG("Server Port: %d", port);
 
 			if((m_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 				throw neterror("Failed to socket()", errno);
@@ -90,6 +92,7 @@ namespace net {
 
 			} catch(neterror err) {
 				ERR("[0x%04x] %s", err.error, err.msg.c_str());
+				return -1;
 			}
 		}
 
@@ -112,10 +115,15 @@ namespace net {
 
 			} catch(neterror err) {
 				ERR("[0x%04x] %s", err.error, err.msg.c_str());
+				return -1;
 			}
 		}
 
 		return total;
+	}
+
+	bool TCPClient::IsActive() {
+		return m_active;
 	}
 
 	TCPClient::~TCPClient() {

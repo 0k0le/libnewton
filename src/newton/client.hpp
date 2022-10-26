@@ -24,6 +24,8 @@ namespace net {
 			int StreamRead(void *buffer, size_t size);
 			int StreamWrite(void *buffer, size_t size);
 
+			bool IsActive();
+
 		private:
 			int m_sockfd = -1, m_port;
 			bool m_active = false;
