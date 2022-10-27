@@ -1,10 +1,10 @@
 /*
  * Matthew Todd Geiger <mgeiger@newtonlabs.com>
  * 
- * Newton Laboratories, gtk-camera-app
+ * Newton Laboratories, libnewton
  *
  * \\\\\\\\\\\\\\\\\\\\
- *  \--\ client.cpp \--\
+ *  \--\ client.hpp \--\
  *   \\\\\\\\\\\\\\\\\\\\
  */
 
