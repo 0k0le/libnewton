@@ -1,11 +1,11 @@
 /*
  * Matthew Todd Geiger <mgeiger@newtonlabs.com>
  * 
- * Newton Laboratories, beaglebone-firmware
+ * Newton Laboratories, libnewton
  *
- * \\\\\\\\\\\\\\\\\\\\
- *  \--\ server.hpp \--\
- *   \\\\\\\\\\\\\\\\\\\\
+ * \\\\\\\\\\\\\\\\\
+ *  \--\ net.cpp \--\
+ *   \\\\\\\\\\\\\\\\\
  */
 
 #include "newton/net.hpp"

@@ -1,7 +1,7 @@
 /*
  * Matthew Todd Geiger <mgeiger@newtonlabs.com>
  * 
- * Newton Laboratories, beaglebone-firmware
+ * Newton Laboratories, libnewton
  *
  * \\\\\\\\\\\\\\\\\
  *  \--\ net.hpp \--\
