@@ -104,6 +104,7 @@ namespace net {
 
 			} catch(neterror err) {
 				ERR("[0x%04x] %s", err.error, err.msg.c_str());
+				return -1;
 			}
 		}
 
@@ -143,6 +144,7 @@ namespace net {
 
 			} catch(neterror err) {
 				ERR("[0x%04x] %s", err.error, err.msg.c_str());
+				return -1;
 			}
 		}
 
