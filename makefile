@@ -4,7 +4,7 @@
 # libnewton
 
 CC=g++
-BUILDOPTS=-Wall -Wextra -pedantic -fpic -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` -D_DEBUG
+BUILDOPTS=-Werror -Wall -Wextra -pedantic -fpic -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` -D_DEBUG
 LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs`
 
 BINDIR=bin/
