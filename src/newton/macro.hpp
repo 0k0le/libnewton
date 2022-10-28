@@ -12,6 +12,8 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <errno.h>
+#include <string.h>
 
 #define FATAL(str, ...) { \
 	fprintf(stderr, str "\n", ##__VA_ARGS__); \

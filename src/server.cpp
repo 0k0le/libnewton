@@ -93,7 +93,7 @@ namespace net {
 
 		// TODO: implement select as a timeout
 
-		// Read until stream is filled
+		// Read until all bytes or read(or you encounter a fatal error)
 		while(total < static_cast<int>(size)) {
 			try {
 				ret = Read(clientsockfd, (uint8_t *)buffer + total, size - total);
@@ -114,6 +114,7 @@ namespace net {
 	int TCPServer::Read(int clientsockfd, void *buffer, size_t size) {
 		int ret = 0;
 
+		// Read and check for errors
 		try {
 			if((ret = read(clientsockfd, buffer, size)) == -1) {
 				if(errno != EAGAIN && errno != EWOULDBLOCK)
