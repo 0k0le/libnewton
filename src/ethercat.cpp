@@ -37,6 +37,15 @@ namespace ethercat {
 		ec_close();
 	}
 
+	int EthercatMaster::GetSlaveCount() {
+		if(_failure) {
+			ERR("Previous failure detected, not processing request");
+			return -1;
+		}
+
+		return ec_slavecount;
+	}
+
 	bool EthercatMaster::GetFailureState() {
 		return _failure;
 	}

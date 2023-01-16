@@ -22,6 +22,7 @@ namespace ethercat {
 			~EthercatMaster();
 
 			bool GetFailureState();
+			int GetSlaveCount();
 
 		private:
 			std::string _ifname;
