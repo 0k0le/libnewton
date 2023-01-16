@@ -4,8 +4,9 @@
 # libnewton
 
 CC=g++
-BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` -D_DEBUG
-LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs` -L3rd/SOEM/build/ -l:libsoem.a
+BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` -D_DEBUG -I3rd/SOEM -I3rd/SOEM/osal -I3rd/SOEM/osal/linux -I3rd/SOEM/oshw -I3rd/SOEM/oshw/linux
+LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs`
+LDSTATICOPTS=
 
 BINDIR=bin/
 BIN=bin/libnewton.so
@@ -32,9 +33,21 @@ server.cpp=$(SRCDIR)/server.cpp
 client.o=$(INTDIR)/client.o
 client.cpp=$(SRCDIR)/client.cpp
 
-$(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o)
-	$(CC) -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(LDOPTS) -o $(BIN)
-	ar rcs $(STATICBIN)	$(INTDIR)/*
+maxon.o=$(INTDIR)/maxon.o
+maxon.cpp=$(SRCDIR)/maxon.cpp
+
+ethercat.o=$(INTDIR)/ethercat.o
+ethercat.cpp=$(SRCDIR)/ethercat.cpp
+
+$(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o)
+	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) 3rd/SOEM/build/libsoem.a $(LDOPTS) -o $(BIN)
+	#ar rcs $(STATICBIN)	$(INTDIR)/*
+
+$(ethercat.o): $(ethercat.cpp)
+	$(CC) $(ethercat.cpp) $(BUILDOPTS) -o $(ethercat.o)
+
+$(maxon.o): $(maxon.cpp)
+	$(CC) $(maxon.cpp) $(BUILDOPTS) -o $(maxon.o)
 
 $(nsignals.o): $(nsignals.cpp)
 	$(CC) $(nsignals.cpp) $(BUILDOPTS) -o $(nsignals.o)

@@ -2,3 +2,7 @@
 -I/usr/include/opencv4/opencv
 -I/usr/include/opencv4
 -I3rd/SOEM
+-I3rd/SOEM/osal
+-I3rd/SOEM/osal/linux
+-I3rd/SOEM/oshw
+-I3rd/SOEM/oshw/linux
