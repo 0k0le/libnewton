@@ -1,0 +1,3 @@
+[submodule "3rd/SOEM"]
+	path = 3rd/SOEM
+	url = https://github.com/OpenEtherCATsociety/SOEM.git
