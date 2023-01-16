@@ -4,10 +4,6 @@
  * Newton Laboratories, libnewton
  *
  * \\\\\\\\\\\\\\\\\\\\\\
- *  \--\ ethercat.hpp \--\
+ *  \--\ ethercat.cpp \--\
  *   \\\\\\\\\\\\\\\\\\\\\\
  */
-
-#pragma once
-
-

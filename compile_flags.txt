@@ -1,3 +1,4 @@
 -I/opt/pylon/include
 -I/usr/include/opencv4/opencv
 -I/usr/include/opencv4
+-I3rd/SOEM

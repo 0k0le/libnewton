@@ -5,10 +5,11 @@
 
 CC=g++
 BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` -D_DEBUG
-LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs`
+LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs` -L3rd/SOEM/build/ -l:libsoem.a
 
 BINDIR=bin/
 BIN=bin/libnewton.so
+STATICBIN=bin/libnewton.a
 
 INTDIR=bin/int
 SRCDIR=src
@@ -33,6 +34,7 @@ client.cpp=$(SRCDIR)/client.cpp
 
 $(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o)
 	$(CC) -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(LDOPTS) -o $(BIN)
+	ar rcs $(STATICBIN)	$(INTDIR)/*
 
 $(nsignals.o): $(nsignals.cpp)
 	$(CC) $(nsignals.cpp) $(BUILDOPTS) -o $(nsignals.o)
