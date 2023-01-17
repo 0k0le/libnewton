@@ -13,7 +13,16 @@
 
 namespace ethercat {
 
+	bool EthercatMaster::_running = false;
+
 	EthercatMaster::EthercatMaster(std::string ifname) : _ifname(ifname) {
+		// Check master is already running
+		if(_running) {
+			ERR("EthercastMaster instance is already running");
+			_failure = true;
+			return;
+		}
+
 		// Initialize ethercat master
 		DEBUG("Initializing SOEM");
 		if(!ec_init(ifname.c_str())) {
@@ -30,9 +39,15 @@ namespace ethercat {
 			return;
 		}
 
+		_running = true;
+
 	}
 
 	EthercatMaster::~EthercatMaster() {
+
+		if(_failure == true)
+			return;
+
 		DEBUG("Closing ethercat master");
 		ec_close();
 	}
