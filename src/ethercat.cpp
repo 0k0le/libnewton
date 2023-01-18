@@ -39,6 +39,32 @@ namespace ethercat {
 			return;
 		}
 
+		DEBUG("Configuring IOMAP");
+		if(ec_config_map(_iomap) <= 0) {
+			ERR("Failed to configure IOMAP");
+			_failure = true;
+			return;
+		}
+
+		DEBUG("Configuring DC");
+		ec_configdc();
+
+		DEBUG("Slaves mapped...");
+
+		ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE * 4);
+		if(ec_slave[0].state != EC_STATE_SAFE_OP) {
+			ERR("Failed to verify safe state!");
+			_failure = true;
+			return;
+		}
+
+
+#ifdef _DEBUG
+		for(int i = 0; i < ec_slavecount; i++) {
+			DEBUG("Slave[%d]: %s", i, ec_slave[i+1].name);
+		}
+#endif
+
 		_alreadyrunning = true;
 
 	}

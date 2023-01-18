@@ -25,8 +25,10 @@ namespace ethercat {
 			int GetSlaveCount();
 
 		private:
+			char _iomap[4096];
 			std::string _ifname;
 			bool _failure = false;
+
 			static bool _alreadyrunning;
 
 	};
