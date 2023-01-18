@@ -1,4 +1,9 @@
 #!/bin/bash
 
 ./build-submodules.bash
-make -j4
+
+if [ "$1" == "DEBUG" ]; then
+	make DEBUG=-D_DEBUG -j4
+else
+	make -j4
+fi

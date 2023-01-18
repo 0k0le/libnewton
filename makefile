@@ -3,8 +3,10 @@
 #
 # libnewton
 
+DEBUG=
+
 CC=g++
-BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` -D_DEBUG -I3rd/SOEM -I3rd/SOEM/osal -I3rd/SOEM/osal/linux -I3rd/SOEM/oshw -I3rd/SOEM/oshw/linux
+BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` $(DEBUG) -I3rd/SOEM -I3rd/SOEM/osal -I3rd/SOEM/osal/linux -I3rd/SOEM/oshw -I3rd/SOEM/oshw/linux
 LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs`
 LDSTATICOPTS=
 

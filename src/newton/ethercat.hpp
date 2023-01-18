@@ -27,7 +27,7 @@ namespace ethercat {
 		private:
 			std::string _ifname;
 			bool _failure = false;
-			static bool _running;
+			static bool _alreadyrunning;
 
 	};
 

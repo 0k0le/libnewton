@@ -13,11 +13,11 @@
 
 namespace ethercat {
 
-	bool EthercatMaster::_running = false;
+	bool EthercatMaster::_alreadyrunning = false;
 
 	EthercatMaster::EthercatMaster(std::string ifname) : _ifname(ifname) {
 		// Check master is already running
-		if(_running) {
+		if(_alreadyrunning) {
 			ERR("EthercastMaster instance is already running");
 			_failure = true;
 			return;
@@ -39,12 +39,11 @@ namespace ethercat {
 			return;
 		}
 
-		_running = true;
+		_alreadyrunning = true;
 
 	}
 
 	EthercatMaster::~EthercatMaster() {
-
 		if(_failure == true)
 			return;
 
