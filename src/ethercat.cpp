@@ -10,6 +10,7 @@
 
 #include "newton/ethercat.hpp"
 #include "soem/ethercat.h"
+#include "soem/ethercatcoe.h"
 
 namespace ethercat {
 
@@ -40,7 +41,7 @@ namespace ethercat {
 		}
 
 		DEBUG("Configuring IOMAP");
-		if(ec_config_map(_iomap) <= 0) {
+		if((_iomapsize = ec_config_map(_iomap)) <= 0) {
 			ERR("Failed to configure IOMAP");
 			_failure = true;
 			return;
@@ -77,6 +78,29 @@ namespace ethercat {
 		ec_close();
 	}
 
+
+	int EthercatMaster::SDOWrite(uint16_t slave, uint16_t index, uint16_t subindex, bool subindexes, int size,
+			void *data, int timeout) {
+		int retval = 0;
+
+		DEBUG("Writing SDO to slave %d --> 0x%x:0x%x", slave, index, subindex);
+		retval += ec_SDOwrite(slave, index, subindex, subindexes, size, data, timeout); 	
+		DEBUG("SDO Retval: %d", retval);
+
+		return retval;
+	}
+
+	int EthercatMaster::SDORead(uint16_t slave, uint16_t index, uint16_t subindex, bool subindexes, int *size,
+			void *buffer, int timeout) {
+		int retval = 0;
+
+		DEBUG("Reading SDO from slave %d, --> 0x%x:0x%x", slave, index, subindex);
+		retval += ec_SDOread(slave, index, subindex, subindexes, size, buffer, timeout);
+		DEBUG("SDO Retval: %d", retval);
+
+		return retval;
+	}
+
 	int EthercatMaster::GetSlaveCount() {
 		if(_failure) {
 			ERR("Previous failure detected, not processing request");
@@ -84,6 +108,15 @@ namespace ethercat {
 		}
 
 		return ec_slavecount;
+	}
+
+	int EthercatMaster::GetIOMapSize() {
+		if(_failure == true) {
+			ERR("Previous failure detected, not processing request to GetIOMapSize()");
+			return -1;
+		}
+
+		return _iomapsize;
 	}
 
 	bool EthercatMaster::GetFailureState() {
