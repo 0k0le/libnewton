@@ -52,6 +52,8 @@ namespace ethercat {
 
 		DEBUG("Slaves mapped...");
 
+		
+
 		ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE * 4);
 		if(ec_slave[0].state != EC_STATE_SAFE_OP) {
 			ERR("Failed to verify safe state!");
