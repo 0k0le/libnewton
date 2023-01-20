@@ -41,9 +41,15 @@ maxon.cpp=$(SRCDIR)/maxon.cpp
 ethercat.o=$(INTDIR)/ethercat.o
 ethercat.cpp=$(SRCDIR)/ethercat.cpp
 
-$(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o)
-	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) 3rd/SOEM/build/libsoem.a $(LDOPTS) -o $(BIN)
+bits.o=$(INTDIR)/bits.o
+bits.cpp=$(SRCDIR)/bits.cpp
+
+$(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) $(bits.o)
+	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) $(bits.o) 3rd/SOEM/build/libsoem.a $(LDOPTS) -o $(BIN)
 	#ar rcs $(STATICBIN)	$(INTDIR)/*
+
+$(bits.o): $(bits.cpp)
+	$(CC) $(bits.cpp) $(BUILDOPTS) -o $(bits.o)
 
 $(ethercat.o): $(ethercat.cpp)
 	$(CC) $(ethercat.cpp) $(BUILDOPTS) -o $(ethercat.o)

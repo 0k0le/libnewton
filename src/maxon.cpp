@@ -42,7 +42,7 @@ namespace maxon {
 	bool MaxonController::Shutdown() {
 		bool ret = true;
 		uint16_t cmdword = GetCommandWord();
-		uint16_t data = cmdword & MAXON_STOP;
+		uint16_t data = Int16Mask(cmdword, MAXON_STOP);
 
 		DEBUG("Old Command Word: 0x%x\nNew Command Word: 0x%x", cmdword, data);
 
