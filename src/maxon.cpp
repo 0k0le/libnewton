@@ -14,6 +14,8 @@
 
 namespace maxon {
 
+	int MaxonController::_positionthreshold = 25;
+
 	MaxonController::MaxonController(std::string ifname, int chainposition)
 		: ethercat::EthercatMaster(ifname), _chainposition(chainposition) {
 		
@@ -61,6 +63,8 @@ namespace maxon {
 	bool MaxonController::SetTargetPosition(uint32_t pos) {
 		bool ret = true;
 
+		_targetposition = pos;
+
 		SDOWrite(_chainposition, MAXON_TARGET_POSITION_INDEX, 0, false, sizeof(pos), &pos);
 
 		return ret;
@@ -95,11 +99,21 @@ namespace maxon {
 		uint16_t cmd2 = 0x000f;
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
-		//sleep(1);
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
-		//sleep(1);
 
 		return true;
+	}
+
+	bool MaxonController::IsOperationComplete() {
+		int cur = static_cast<int>(GetCurrentPosition());
+		int target = static_cast<int>(_targetposition);
+
+		DEBUG("Position Threshold: %d", _positionthreshold);
+
+		if(cur > target-_positionthreshold && cur < target+_positionthreshold)
+			return true;
+		
+		return false;
 	}
 
 	bool MaxonController::StartPositionMode() {

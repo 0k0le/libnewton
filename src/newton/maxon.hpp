@@ -37,9 +37,11 @@ namespace maxon {
 
 			bool EnablePositionMode();
 			bool StartPositionMode();
+			// This only works for velocity mode
 			bool StartAndEnable();
 			bool Halt();
 			bool Shutdown();
+			bool IsOperationComplete();
 
 			bool SetMode(uint8_t mode);
 			bool SetTargetPosition(uint32_t pos);
@@ -50,6 +52,8 @@ namespace maxon {
 		private:
 			std::string _ifname;
 			int _chainposition;
+			uint32_t _targetposition;
+			static int _positionthreshold;
 	};
 
 	class MaxonConfigurator : public MaxonController {
