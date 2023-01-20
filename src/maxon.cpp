@@ -92,16 +92,32 @@ namespace maxon {
 	}
 
 	bool MaxonController::EnablePositionMode() {
-		bool ret = true;
-		//uint16_t cmdword = GetCommandWord();
-		//uint16_t data = Int16Mask(cmdword, MAXON_START_AND_ENABLE_POSITION);
 		uint16_t cmd1 = 0x0006;
-		uint16_t cmd2 = 0x000f;
+		uint16_t cmd2 = 0x000F;
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
+	
+		if(!IsSafe()) {
+			ERR("Machine is not in safe state after shutdown command!");
+			return false;
+		}
+
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
 
-		return ret;
+		if(!IsSafe()) {
+			ERR("Machine is not in safe state after switch on command!");
+			return false;
+		}
+
+		return true;
+	}
+
+	bool MaxonController::IsSafe() {
+		ec_statecheck(_chainposition, EC_STATE_SAFE_OP, EC_TIMEOUTRET * 3);
+		if(ec_slave[_chainposition].state != EC_STATE_SAFE_OP)
+			return false;
+
+		return true;
 	}
 
 	bool MaxonController::IsOperationComplete() {
@@ -118,13 +134,15 @@ namespace maxon {
 	}
 
 	bool MaxonController::StartPositionMode() {
-		bool ret = true;
-
-		uint16_t data = 0x001F;
+		uint16_t data = 0x003F;
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
+		if(!IsSafe()) {
+			ERR("Machine is not safe after move absolute command!");
+			return false;
+		}
 
-		return ret;
+		return true;
 	}
 
 } // namespace maxon

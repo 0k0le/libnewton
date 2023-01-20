@@ -45,6 +45,8 @@ namespace maxon {
 			bool SetMode(uint8_t mode);
 			bool SetTargetPosition(uint32_t pos);
 
+			bool IsSafe();
+
 			uint32_t GetCurrentPosition();
 			uint16_t GetCommandWord();
 
