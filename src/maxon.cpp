@@ -95,9 +95,9 @@ namespace maxon {
 		uint16_t cmd2 = 0x000f;
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
-		sleep(1);
+		//sleep(1);
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
-		sleep(1);
+		//sleep(1);
 
 		return true;
 	}
