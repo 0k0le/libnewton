@@ -22,7 +22,9 @@
 #define MAXON_START 0x0007
 #define MAXON_START_AND_ENABLE 0x000F
 #define MAXON_STOP "xxxxxxxx0xxxx110"
-#define MAXON_HALT 0x010F
+#define MAXON_HALT "xxxxxxx1xxxxxxxx"
+#define MAXON_START_AND_ENABLE_POSITION "0xxxxxx011111111"
+
 
 #define MAXON_MODE_VELOCITY 3
 #define MAXON_MODE_POSITION 1
@@ -33,13 +35,15 @@ namespace maxon {
 		public:
 			MaxonController(std::string ifname, int chainposition);
 
+			bool EnablePositionMode();
+			bool StartPositionMode();
 			bool StartAndEnable();
 			bool Halt();
 			bool Shutdown();
 
 			bool SetMode(uint8_t mode);
-
 			bool SetTargetPosition(uint32_t pos);
+
 			uint32_t GetCurrentPosition();
 			uint16_t GetCommandWord();
 

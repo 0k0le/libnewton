@@ -32,7 +32,8 @@ namespace maxon {
 
 	bool MaxonController::Halt() {
 		bool ret = true;
-		uint16_t data = MAXON_HALT;
+		uint16_t cmdword = GetCommandWord();
+		uint16_t data = Int16Mask(cmdword, MAXON_HALT);
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
 
@@ -43,8 +44,6 @@ namespace maxon {
 		bool ret = true;
 		uint16_t cmdword = GetCommandWord();
 		uint16_t data = Int16Mask(cmdword, MAXON_STOP);
-
-		DEBUG("Old Command Word: 0x%x\nNew Command Word: 0x%x", cmdword, data);
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
 
@@ -86,6 +85,31 @@ namespace maxon {
 		SDORead(_chainposition, MAXON_COMMAND_INDEX, 0, false, &size, &commandword);
 
 		return commandword;
+	}
+
+	bool MaxonController::EnablePositionMode() {
+		bool ret = true;
+		uint16_t cmdword = GetCommandWord();
+		//uint16_t data = Int16Mask(cmdword, MAXON_START_AND_ENABLE_POSITION);
+		uint16_t cmd1 = 0x0006;
+		uint16_t cmd2 = 0x000f;
+
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
+		sleep(1);
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
+		sleep(1);
+
+		return true;
+	}
+
+	bool MaxonController::StartPositionMode() {
+		bool ret = true;
+
+		uint16_t data = 0x001F;
+
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
+
+		return ret;
 	}
 
 } // namespace maxon
