@@ -93,7 +93,7 @@ namespace maxon {
 
 	bool MaxonController::EnablePositionMode() {
 		bool ret = true;
-		uint16_t cmdword = GetCommandWord();
+		//uint16_t cmdword = GetCommandWord();
 		//uint16_t data = Int16Mask(cmdword, MAXON_START_AND_ENABLE_POSITION);
 		uint16_t cmd1 = 0x0006;
 		uint16_t cmd2 = 0x000f;
@@ -101,7 +101,7 @@ namespace maxon {
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
 
-		return true;
+		return ret;
 	}
 
 	bool MaxonController::IsOperationComplete() {
