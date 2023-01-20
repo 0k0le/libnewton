@@ -109,6 +109,7 @@ namespace maxon {
 		int target = static_cast<int>(_targetposition);
 
 		DEBUG("Position Threshold: %d", _positionthreshold);
+		DEBUG("Position Target: %d", target);
 
 		if(cur > target-_positionthreshold && cur < target+_positionthreshold)
 			return true;
