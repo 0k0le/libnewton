@@ -25,7 +25,6 @@
 #define MAXON_HALT "xxxxxxx1xxxxxxxx"
 #define MAXON_START_AND_ENABLE_POSITION "0xxxxxx011111111"
 
-
 #define MAXON_MODE_VELOCITY 3
 #define MAXON_MODE_POSITION 1
 
