@@ -18,12 +18,18 @@
 #define MAXON_OPERATION_INDEX 0x6060
 #define MAXON_TARGET_POSITION_INDEX 0x607A
 #define MAXON_ACTUAL_POSITION_INDEX 0x6064
+#define MAXON_TARGET_VELOCITY_INDEX 0x60FF
 
 #define MAXON_START 0x0007
 #define MAXON_START_AND_ENABLE 0x000F
 #define MAXON_STOP "xxxxxxxx0xxxx110"
 #define MAXON_HALT "xxxxxxx1xxxxxxxx"
 #define MAXON_START_AND_ENABLE_POSITION "0xxxxxx011111111"
+
+#define MAXON_SHUTDOWN 0x0006
+#define MAXON_SWITCHON 0x000F
+
+#define MAXON_START_VELOCITY 0x000F
 
 #define MAXON_MODE_VELOCITY 3
 #define MAXON_MODE_POSITION 1
@@ -34,9 +40,8 @@ namespace maxon {
 		public:
 			MaxonController(std::string ifname, int chainposition);
 
-			bool EnablePositionMode();
+			bool StartVelocityMode();
 			bool StartPositionMode();
-			// This only works for velocity mode
 			bool StartAndEnable();
 			bool Halt();
 			bool Shutdown();
@@ -44,6 +49,7 @@ namespace maxon {
 
 			bool SetMode(uint8_t mode);
 			bool SetTargetPosition(uint32_t pos);
+			bool SetTargetVelocity(uint32_t vel);
 
 			bool IsSafe();
 

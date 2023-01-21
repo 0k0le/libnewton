@@ -23,33 +23,76 @@ namespace maxon {
 
 	bool MaxonController::StartAndEnable() {
 		bool ret = true;
-		uint16_t data = MAXON_START_AND_ENABLE;
+		uint16_t cmd1 = MAXON_SHUTDOWN;
+		uint16_t cmd2 = MAXON_SWITCHON;
 
-		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data); 
-		sleep(1);
-		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1); 
+		
+		if(!IsSafe()) {
+			ERR("Machine is not safe after shutdown command issued");
+			return false;
+		}
 
-		return ret;	
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
+
+		if(!IsSafe()) {
+			ERR("Machine is not safe after switchon command issued");
+			return false;
+		}
+
+		return true;	
+	}
+
+	bool MaxonController::SetTargetVelocity(uint32_t vel) {
+		SDOWrite(_chainposition, MAXON_TARGET_VELOCITY_INDEX, 0, false, sizeof(vel), &vel);
+
+		if(!IsSafe()) {
+			ERR("Failed to set target velocity");
+			return false;
+		}
+
+		return true;
+	}
+
+	bool MaxonController::StartVelocityMode() {
+		uint16_t cmd = MAXON_START_VELOCITY;
+
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(uint16_t), &cmd);
+
+		if(!IsSafe()) {
+			ERR("Failed to activate velocity mode!");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool MaxonController::Halt() {
-		bool ret = true;
 		uint16_t cmdword = GetCommandWord();
 		uint16_t data = Int16Mask(cmdword, MAXON_HALT);
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
 
-		return ret;
+		if(!IsSafe()) {
+			ERR("Machine not in safe state after halt command!");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool MaxonController::Shutdown() {
-		bool ret = true;
 		uint16_t cmdword = GetCommandWord();
 		uint16_t data = Int16Mask(cmdword, MAXON_STOP);
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
 
-		return ret;
+		if(!IsSafe()) {
+			ERR("Machine not in safe state after halt comand!");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool MaxonController::SetMode(uint8_t mode) {
@@ -89,27 +132,6 @@ namespace maxon {
 		SDORead(_chainposition, MAXON_COMMAND_INDEX, 0, false, &size, &commandword);
 
 		return commandword;
-	}
-
-	bool MaxonController::EnablePositionMode() {
-		uint16_t cmd1 = 0x0006;
-		uint16_t cmd2 = 0x000F;
-
-		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
-	
-		if(!IsSafe()) {
-			ERR("Machine is not in safe state after shutdown command!");
-			return false;
-		}
-
-		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
-
-		if(!IsSafe()) {
-			ERR("Machine is not in safe state after switch on command!");
-			return false;
-		}
-
-		return true;
 	}
 
 	bool MaxonController::IsSafe() {
