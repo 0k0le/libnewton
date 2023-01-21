@@ -16,7 +16,9 @@
 #include "soem/ethercat.h"
 
 namespace ethercat {
-	
+
+	ec_adaptert *GetAdapters();
+
 	class EthercatMaster {
 		public:
 			EthercatMaster(std::string ifname);

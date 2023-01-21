@@ -16,6 +16,10 @@ namespace ethercat {
 
 	bool EthercatMaster::_alreadyrunning = false;
 
+	ec_adaptert *GetAdapters() {
+		return ec_find_adapters();
+	}
+
 	EthercatMaster::EthercatMaster(std::string ifname) : _ifname(ifname) {
 		// Check master is already running
 		if(_alreadyrunning) {
