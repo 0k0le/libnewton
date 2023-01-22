@@ -22,7 +22,6 @@ namespace maxon {
 	}
 
 	bool MaxonController::StartAndEnable() {
-		bool ret = true;
 		uint16_t cmd1 = MAXON_SHUTDOWN;
 		uint16_t cmd2 = MAXON_SWITCHON;
 
@@ -81,6 +80,18 @@ namespace maxon {
 		return true;
 	}
 
+	bool MaxonController::HaltAndShutdown() {
+		if(!Halt())
+			return false;
+
+		sleep(2);
+
+		if(!Shutdown())
+			return false;
+
+		return true;
+	}
+
 	bool MaxonController::Shutdown() {
 		uint16_t cmdword = GetCommandWord();
 		uint16_t data = Int16Mask(cmdword, MAXON_STOP);
@@ -96,21 +107,26 @@ namespace maxon {
 	}
 
 	bool MaxonController::SetMode(uint8_t mode) {
-		bool ret = true;
-
 		SDOWrite(_chainposition, MAXON_OPERATION_INDEX, 0, false, sizeof(mode), &mode);
 
-		return ret;
+		if(!IsSafe()) {
+			ERR("Machine is not in safe state after changing mode");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool MaxonController::SetTargetPosition(uint32_t pos) {
-		bool ret = true;
-
 		_targetposition = pos;
 
 		SDOWrite(_chainposition, MAXON_TARGET_POSITION_INDEX, 0, false, sizeof(pos), &pos);
+		if(!IsSafe()) {
+			ERR("Machine not in safe state after setting target position");
+			return false;
+		}
 
-		return ret;
+		return true;
 	}
 
 	uint32_t MaxonController::GetCurrentPosition() {

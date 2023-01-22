@@ -15,11 +15,6 @@
 #include <errno.h>
 #include <string.h>
 
-#define FATAL(str, ...) { \
-	fprintf(stderr, str "\n", ##__VA_ARGS__); \
-	exit(EXIT_FAILURE); \
-}
-
 #define PRINT(str, ...) printf(str "\n", ##__VA_ARGS__)
 
 #ifdef _DEBUG
@@ -31,5 +26,11 @@
 #define ERR(str, ...) fprintf(stderr, "[ERROR] " str "\n", ##__VA_ARGS__)
 #define WARN(str, ...) printf("! " str " !\n", ##__VA_ARGS__)
 #endif
+
+
+#define FATAL(str, ...) {\
+	ERR(str, ##__VA_ARGS__);\
+	exit(EXIT_FAILURE);\
+}
 
 #define UNUSED(x)(void)(x)
