@@ -142,16 +142,39 @@ namespace maxon {
 		return true;
 	}
 
+	uint32_t MaxonController::GetTargetPosition() {
+		int pos;
+		int size = 4;
+
+		if(!SDORead(_chainposition, MAXON_TARGET_POSITION_INDEX, 0, false, &size, &pos)) {
+			ERR("Detected failure in sdoread");
+			sleep(1);
+			ResetFault();
+		}
+
+		return static_cast<uint32_t>(pos);
+	}
+
+	bool MaxonController::ResetFault() {
+		uint16_t cmd = GetCommandWord();
+		uint16_t newcmd = Int16Mask(cmd, MAXON_FAULT_RESET);
+
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(newcmd), &newcmd);
+
+		return true;
+	}
+
 	uint32_t MaxonController::GetCurrentPosition() {
-		uint32_t ret = 0;
-		int size;
+		int ret = 0;
+		int size = 4;
 
 		// TODO: This is very unsafe!! will fix later!
-		SDORead(_chainposition, MAXON_ACTUAL_POSITION_INDEX, 0, false, &size, &ret); 
+		SDORead(_chainposition, MAXON_ACTUAL_POSITION_INDEX, 0, false, &size, &ret);
 
 		DEBUG("Maxon current position: %d", ret);
+		DEBUG("Maxon SDORead Size: %d", size);
 
-		return ret;
+		return static_cast<uint32_t>(ret);
 	}
 
 	uint16_t MaxonController::GetCommandWord() {

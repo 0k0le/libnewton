@@ -14,6 +14,7 @@
 #include "macro.hpp"
 #include "bits.hpp"
 
+#define MAXON_FOLLOW_ERROR_INDEX 0x6065
 #define MAXON_COMMAND_INDEX 0x6040
 #define MAXON_OPERATION_INDEX 0x6060
 #define MAXON_TARGET_POSITION_INDEX 0x607A
@@ -25,6 +26,8 @@
 #define MAXON_STOP "xxxxxxxx0xxxx110"
 #define MAXON_HALT "xxxxxxx1xxxxxxxx"
 #define MAXON_START_AND_ENABLE_POSITION "0xxxxxx011111111"
+
+#define MAXON_FAULT_RESET "xxxxxxxx1xxxxxxx"
 
 #define MAXON_SHUTDOWN 0x0006
 #define MAXON_SWITCHON 0x000F
@@ -59,7 +62,10 @@ namespace maxon {
 
 			bool NewPositionToggle();
 
+			bool ResetFault();
+
 			uint32_t GetCurrentPosition();
+			uint32_t GetTargetPosition();
 			uint16_t GetCommandWord();
 
 		private:

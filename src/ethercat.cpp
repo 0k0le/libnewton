@@ -11,6 +11,7 @@
 #include "newton/ethercat.hpp"
 #include "soem/ethercat.h"
 #include "soem/ethercatcoe.h"
+#include "soem/ethercatprint.h"
 
 namespace ethercat {
 
@@ -104,6 +105,15 @@ namespace ethercat {
 		retval += ec_SDOread(slave, index, subindex, subindexes, size, buffer, timeout);
 		DEBUG("SDO Retval: %d", retval);
 
+		if(!retval) {
+			ERR("Failed to SDORead!");
+
+			if(EcatError) {
+				ERR("EcatError detected after sdoread");
+				ERR("%s", ec_elist2string());
+			}
+		}
+		
 		return retval;
 	}
 
