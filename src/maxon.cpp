@@ -32,6 +32,8 @@ namespace maxon {
 			return false;
 		}
 
+		usleep(500000);
+
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
 
 		if(!IsSafe()) {
@@ -40,6 +42,17 @@ namespace maxon {
 		}
 
 		return true;	
+	}
+
+	bool MaxonController::NewPositionToggle() {
+		uint16_t cmd1 = MAXON_SWITCHON;
+
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd1), &cmd1);
+
+		if(!IsSafe())
+			return false;
+
+		return true;
 	}
 
 	bool MaxonController::SetTargetVelocity(uint32_t vel) {

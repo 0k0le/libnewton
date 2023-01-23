@@ -55,8 +55,9 @@ namespace maxon {
 			bool SetTargetVelocity(uint32_t vel);
 
 			bool HaltAndShutdown();
-
 			bool IsSafe();
+
+			bool NewPositionToggle();
 
 			uint32_t GetCurrentPosition();
 			uint16_t GetCommandWord();
