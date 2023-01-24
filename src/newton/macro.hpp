@@ -34,3 +34,13 @@
 }
 
 #define UNUSED(x)(void)(x)
+
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#define usleep(val) Sleep(val/1000)
+#define sleep(val) Sleep(val*1000)
+#define WINEXPORT __declspec(dllexport)
+#else
+#define WINEXPORT
+#endif

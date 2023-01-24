@@ -17,9 +17,9 @@
 
 namespace ethercat {
 
-	ec_adaptert *GetAdapters();
+	WINEXPORT ec_adaptert *GetAdapters();
 
-	class EthercatMaster {
+	class WINEXPORT EthercatMaster {
 		public:
 			EthercatMaster(std::string ifname);
 			~EthercatMaster();

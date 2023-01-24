@@ -9,8 +9,11 @@
  */
 
 #include "newton/maxon.hpp"
+#include "newton/macro.hpp"
 
+#if !defined(WIN32)
 #include <unistd.h>
+#endif
 
 namespace maxon {
 

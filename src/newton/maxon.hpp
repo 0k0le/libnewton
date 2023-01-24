@@ -39,7 +39,7 @@
 
 namespace maxon {
 
-	class MaxonController : private ethercat::EthercatMaster {
+	class WINEXPORT MaxonController : private ethercat::EthercatMaster {
 		public:
 			MaxonController(std::string ifname, int chainposition);
 
