@@ -224,3 +224,57 @@ namespace maxon {
 
 } // namespace maxon
   
+
+#ifdef _CSHARP
+
+// For CSHARP
+static bool isrunning = false;
+static maxon::MaxonController *maxonController = nullptr;
+
+extern "C" {
+
+void CreateMaxonController() {
+	if(isrunning)
+		return;
+	
+	isrunning = true;
+	ec_adaptert *adapter = ethercat::GetAdapters();
+
+	maxonController = new maxon::MaxonController(std::string(adapter->name), 1);
+
+	maxonController->ResetFault();
+
+	if(!maxonController->SetMode(MAXON_MODE_POSITION))
+		FATAL("Failed to switch to position mode");
+
+	if(!maxonController->StartAndEnable())
+		FATAL("Failed to StartAndEnable()");
+	
+	if(!maxonController->SetTargetPosition(0))
+		FATAL("Failed to set target position");
+
+	if(!maxonController->StartPositionMode())
+		FATAL("Failed to start position mode");
+}
+
+void MoveMaxon(uint32_t position) {
+	if(!maxonController->NewPositionToggle())
+		FATAL("Failed to StartAndEnable");
+
+	if(!maxonController->SetTargetPosition(position))
+		FATAL("Failed to set target position");
+
+	if(!maxonController->StartPositionMode())
+		FATAL("Failed to start position mode");
+}
+
+void DeleteMaxonController() {
+	if(!isrunning)
+		return;
+
+	delete maxonController;
+}
+
+}
+
+#endif

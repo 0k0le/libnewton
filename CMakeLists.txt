@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 add_compile_definitions(_WINSOCK_DEPRECATED_NO_WARNINGS)
 add_compile_definitions(_DEBUG)
+add_compile_definitions(_CSHARP)
 
 link_directories(${PROJECT_SOURCE_DIR}/3rd/SOEM/build/Release "C:\\pcap\\Lib\\x64")
 

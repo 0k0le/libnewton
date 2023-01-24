@@ -80,3 +80,15 @@ namespace maxon {
 	};
 
 } // namespace maxon
+
+#ifdef _CSHARP
+
+extern "C" {
+
+void WINEXPORT CreateMaxonController();
+void WINEXPORT DeleteMaxonController();
+void WINEXPORT MoveMaxon(uint32_t position);
+
+}
+
+#endif
