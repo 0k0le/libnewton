@@ -233,14 +233,13 @@ static maxon::MaxonController *maxonController = nullptr;
 
 extern "C" {
 
-void CreateMaxonController() {
+void CreateMaxonController(char *device) {
 	if(isrunning)
 		return;
-	
-	isrunning = true;
-	ec_adaptert *adapter = ethercat::GetAdapters();
 
-	maxonController = new maxon::MaxonController(std::string(adapter->name), 1);
+	isrunning = true;
+
+	maxonController = new maxon::MaxonController(std::string(device), 1);
 
 	maxonController->ResetFault();
 

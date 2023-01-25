@@ -16,7 +16,7 @@
 namespace net {
 	TCPClient::TCPClient(std::string address, const int port) : m_port{port} {
 		try {
-		
+	
 			memset(&m_clientaddr, 0, sizeof(m_clientaddr));
 			m_clientaddr.sin_port = htons(port);
 			m_clientaddr.sin_addr.s_addr = inet_addr(address.c_str());
