@@ -6,7 +6,7 @@
 DEBUG=
 
 CC=g++
-BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` $(DEBUG) -I3rd/SOEM -I3rd/SOEM/osal -I3rd/SOEM/osal/linux -I3rd/SOEM/oshw -I3rd/SOEM/oshw/linux
+BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g `pylon-config --cflags` `pkg-config opencv4 --cflags` $(DEBUG) -I3rd/SOEM -I3rd/SOEM/osal -I3rd/SOEM/osal/linux -I3rd/SOEM/oshw -I3rd/SOEM/oshw/linux -lgclib -lgclibo
 LDOPTS=`pylon-config --libs --libs-rpath` `pkg-config opencv4 --libs`
 LDSTATICOPTS=
 
@@ -44,8 +44,11 @@ ethercat.cpp=$(SRCDIR)/ethercat.cpp
 bits.o=$(INTDIR)/bits.o
 bits.cpp=$(SRCDIR)/bits.cpp
 
-$(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) $(bits.o)
-	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) $(bits.o) 3rd/SOEM/build/libsoem.a $(LDOPTS) -o $(BIN)
+galil.o=$(INTDIR)/galil.o
+galil.cpp=$(SRCDIR)/galil.cpp
+
+$(BIN): init $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) $(bits.o) $(galil.o)
+	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(basler-camera.o) $(server.o) $(net.o) $(client.o) $(maxon.o) $(ethercat.o) $(bits.o) $(galil.o) 3rd/SOEM/build/libsoem.a $(LDOPTS) -o $(BIN)
 	#ar rcs $(STATICBIN)	$(INTDIR)/*
 
 $(bits.o): $(bits.cpp)
@@ -74,6 +77,9 @@ $(server.o): $(server.cpp)
 
 $(client.o): $(client.cpp)
 	$(CC) $(client.cpp) $(BUILDOPTS) -o $(client.o)
+
+$(galil.o): $(galil.cpp)
+	$(CC) $(galil.cpp) $(BUILDOPTS) -o $(galil.o)
 
 init:
 	mkdir -p bin/int

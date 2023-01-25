@@ -47,25 +47,19 @@ namespace maxon {
 
 			bool StartVelocityMode();
 			bool StartPositionMode();
-			
 			/* This will issue the shutdown and startup command */
 			bool StartAndEnable();
-			
 			bool Halt();
 			bool Shutdown();
 			bool IsOperationComplete();
 			bool Continue();
-
 			bool SetMode(uint8_t mode);
 			bool SetTargetPosition(uint32_t pos);
 			bool SetTargetVelocity(uint32_t vel);
 			bool SetProfileVelocity(uint32_t vel);
-
 			bool HaltAndShutdown();
 			bool IsSafe();
-
 			bool NewPositionToggle();
-
 			bool ResetFault();
 
 			uint32_t GetCurrentPosition();
