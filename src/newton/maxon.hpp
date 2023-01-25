@@ -20,11 +20,13 @@
 #define MAXON_TARGET_POSITION_INDEX 0x607A
 #define MAXON_ACTUAL_POSITION_INDEX 0x6064
 #define MAXON_TARGET_VELOCITY_INDEX 0x60FF
+#define MAXON_PROFILE_VELOCITY_INDEX 0x6081
 
 #define MAXON_START 0x0007
 #define MAXON_START_AND_ENABLE 0x000F
 #define MAXON_STOP "xxxxxxxx0xxxx110"
 #define MAXON_HALT "xxxxxxx1xxxxxxxx"
+#define MAXON_CONTINUE "xxxxxxx0xxxxxxxx"
 #define MAXON_START_AND_ENABLE_POSITION "0xxxxxx011111111"
 
 #define MAXON_FAULT_RESET "xxxxxxxx1xxxxxxx"
@@ -52,10 +54,12 @@ namespace maxon {
 			bool Halt();
 			bool Shutdown();
 			bool IsOperationComplete();
+			bool Continue();
 
 			bool SetMode(uint8_t mode);
 			bool SetTargetPosition(uint32_t pos);
 			bool SetTargetVelocity(uint32_t vel);
+			bool SetProfileVelocity(uint32_t vel);
 
 			bool HaltAndShutdown();
 			bool IsSafe();
@@ -88,6 +92,7 @@ extern "C" {
 void WINEXPORT CreateMaxonController(char *device);
 void WINEXPORT DeleteMaxonController();
 void WINEXPORT MoveMaxon(uint32_t position);
+void WINEXPORT SetTargetVelocity(uint32_t velocity);
 
 }
 

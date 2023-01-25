@@ -69,6 +69,17 @@ namespace maxon {
 		return true;
 	}
 
+	bool MaxonController::SetProfileVelocity(uint32_t vel) {
+		SDOWrite(_chainposition, MAXON_PROFILE_VELOCITY_INDEX, 0, false, sizeof(vel), &vel);
+
+		if(!IsSafe()) {
+			ERR("Failed to set profile velocity");
+			return false;
+		}
+
+		return true;
+	}
+
 	bool MaxonController::StartVelocityMode() {
 		uint16_t cmd = MAXON_START_VELOCITY;
 
@@ -90,6 +101,20 @@ namespace maxon {
 
 		if(!IsSafe()) {
 			ERR("Machine not in safe state after halt command!");
+			return false;
+		}
+
+		return true;
+	}
+
+	bool MaxonController::Continue() {
+		uint16_t cmdword = GetCommandWord();
+		uint16_t data = Int16Mask(cmdword, MAXON_CONTINUE);
+
+		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(data), &data);
+
+		if(!IsSafe()) {
+			ERR("Machine not safe after continue");
 			return false;
 		}
 
@@ -272,6 +297,16 @@ void DeleteMaxonController() {
 		return;
 
 	delete maxonController;
+}
+
+void SetTargetVelocity(uint32_t velocity) {
+	if(!isrunning)
+		return;
+
+	uint32_t pos = maxonController->GetTargetPosition();
+	maxonController->Halt();
+	maxonController->SetProfileVelocity(velocity);
+	MoveMaxon(pos);
 }
 
 }
