@@ -22,7 +22,7 @@
 #include "macro.hpp"
 
 #define GALIL_DEFAULT_SPEED 300000
-#define GALIL_DEFAULT_ACCEL (GALIL_DEFAULT_SPEED*100)
+#define GALIL_DEFAULT_ACCEL (GALIL_DEFAULT_SPEED*.9)
 
 namespace galil {
 	class WINEXPORT GalilController {
@@ -50,8 +50,11 @@ namespace galil {
 #ifdef _CSHARP
 
 extern "C" {
-
-	
+	void WINEXPORT CreateGalilController(char *axises, uint32_t numaxises, char *ip);
+	void WINEXPORT DeleteGalilController();
+	void WINEXPORT MoveGalil(char axis, uint32_t pos);
+	void WINEXPORT GalilVelocity(char axis, uint32_t vel);
+	void WINEXPORT StopGalil(char axis);
 }
 
 #endif

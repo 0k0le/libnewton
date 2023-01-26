@@ -111,9 +111,48 @@ namespace galil {
 
 #ifdef _CSHARP
 
-extern "C" {
+static bool isrunning = false;
+static galil::GalilController *galilController = nullptr;
 
-	
+extern "C" {
+	void CreateGalilController(char *axises, uint32_t numaxises, char *ip) {
+		std::vector<char> axises_vector;
+		for(int i = 0; i < numaxises; i++)
+			axises_vector.push_back(axises[i]);
+
+		galilController = new galil::GalilController(std::string(ip), axises_vector);
+
+		isrunning = true;
+	}
+
+	void DeleteGalilController() {
+		if(galilController == nullptr)
+			return;
+
+		delete galilController;
+	}
+
+	void MoveGalil(char axis, uint32_t pos) {
+		if(!isrunning || !galilController)
+			return;
+
+		galilController->Move(axis, pos);
+	}
+
+	void GalilVelocity(char axis, uint32_t vel) {
+		if(!isrunning || !galilController)
+			return;
+
+		galilController->Speed(axis, vel);
+	}
+
+	void StopGalil(char axis) {
+		if(!isrunning || !galilController)
+			return;
+
+		galilController->Stop(axis);
+	}
+
 }
 
 #endif
