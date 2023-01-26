@@ -25,6 +25,8 @@
 #define GALIL_DEFAULT_ACCEL (GALIL_DEFAULT_SPEED*.9)
 
 namespace galil {
+	enum limitnum {left=1, right};
+
 	class WINEXPORT GalilController {
 		public:
 			GalilController(std::string address, std::vector<char> axises);
@@ -35,6 +37,7 @@ namespace galil {
 			void Accel(char axis, uint32_t accel);
 			void Speed(char axis, uint32_t speed);
 			void WaitForMotionComplete(char axis);
+			bool ReadLimitSwitch(limitnum limit);
 		private:
 			void _Init();
 			void _DefinePositionZero(char axis);
@@ -55,6 +58,7 @@ extern "C" {
 	void WINEXPORT MoveGalil(char axis, uint32_t pos);
 	void WINEXPORT GalilVelocity(char axis, uint32_t vel);
 	void WINEXPORT StopGalil(char axis);
+	void WINEXPORT ReadLimitSwitch(uint32_t digitalinput);
 }
 
 #endif

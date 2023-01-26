@@ -93,8 +93,33 @@ namespace galil {
 			Accel(a, GALIL_DEFAULT_ACCEL);
 			_EnablePositionTracking(a);
 		}
+	}
 
+	bool GalilController::ReadLimitSwitch(limitnum limit) {
+		int limitnum = 0, ret;
 		
+		switch(limit) {
+			case limitnum::left:
+				limitnum = 1;
+				break;
+			case limitnum::right:
+				limitnum = 2;
+				break;
+			default:
+				ERR("Invalid limit switch");
+				return false;
+		}
+
+		char buffer[32];
+		snprintf(buffer, 32, "MG @IN[%d]", limitnum);
+
+		GCmdI(_con, buffer, &ret);
+		DEBUG("Limit switch %d ret: %d", limitnum, ret);
+
+		if(ret)
+			return true;
+
+		return false;
 	}
 
 	void GalilController::_DefinePositionZero(char axis) {
@@ -151,6 +176,18 @@ extern "C" {
 			return;
 
 		galilController->Stop(axis);
+	}
+
+	int ReadLimitSwitch(uint32_t digitalinput) {
+		if(!isrunning || !galilController) {
+			ERR("Galil controller is not initialized");
+			return 3;
+		}
+
+		if(galilController->ReadLimitSwitch(digitalinput))
+			return 1;
+
+		return 0;
 	}
 
 }
