@@ -22,15 +22,21 @@ namespace galil {
 	}
 
 	GalilController::~GalilController() {
-		if(_con != nullptr)
-			GClose(_con);
+		if(_con == nullptr)
+			return;
+		
+		for(auto a : _axises)
+			Stop(a);
+
+		GClose(_con);
 	}
 
 	void GalilController::Move(char axis, uint32_t position) {
 		char buffer[32];
-		snprintf(buffer, 32, "JG%c=%d", axis, position);
+		snprintf(buffer, 32, "PA%c=%d", axis, position);
 
 		GCmd(_con, buffer);
+
 	}
 
 	void GalilController::WaitForMotionComplete(char axis) {
@@ -57,11 +63,19 @@ namespace galil {
 		char buffer[32];
 		snprintf(buffer, 32, "AC%c=%d", axis, accel);
 		GCmd(_con, buffer);
+		snprintf(buffer, 32, "DC%c=%d", axis, accel);
+		GCmd(_con, buffer);
 	}
 
 	void GalilController::Speed(char axis, uint32_t speed) {
 		char buffer[32];
 		snprintf(buffer, 32, "SP%c=%d", axis, speed);
+		GCmd(_con, buffer);
+	}
+
+	void GalilController::_EnablePositionTracking(char axis) {
+		char buffer[32];
+		snprintf(buffer, 32, "PT%c=1", axis);
 		GCmd(_con, buffer);
 	}
 
@@ -77,7 +91,10 @@ namespace galil {
 			_DefinePositionZero(a);
 			Speed(a, GALIL_DEFAULT_SPEED);
 			Accel(a, GALIL_DEFAULT_ACCEL);
+			_EnablePositionTracking(a);
 		}
+
+		
 	}
 
 	void GalilController::_DefinePositionZero(char axis) {

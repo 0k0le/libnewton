@@ -21,7 +21,7 @@
 
 #include "macro.hpp"
 
-#define GALIL_DEFAULT_SPEED 150000
+#define GALIL_DEFAULT_SPEED 300000
 #define GALIL_DEFAULT_ACCEL (GALIL_DEFAULT_SPEED*100)
 
 namespace galil {
@@ -38,6 +38,7 @@ namespace galil {
 		private:
 			void _Init();
 			void _DefinePositionZero(char axis);
+			void _EnablePositionTracking(char axis);
 
 			std::vector<char> _axises;
 			GCon _con = nullptr;
