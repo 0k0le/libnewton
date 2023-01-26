@@ -46,3 +46,12 @@ namespace galil {
 	};
 
 } // namespace galil
+
+#ifdef _CSHARP
+
+extern "C" {
+
+	
+}
+
+#endif
