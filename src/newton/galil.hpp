@@ -25,7 +25,7 @@
 #define GALIL_DEFAULT_ACCEL (GALIL_DEFAULT_SPEED*100)
 
 namespace galil {
-	class GalilController {
+	class WINEXPORT GalilController {
 		public:
 			GalilController(std::string address, std::vector<char> axises);
 			~GalilController();

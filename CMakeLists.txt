@@ -15,17 +15,19 @@ add_compile_definitions(_WINSOCK_DEPRECATED_NO_WARNINGS)
 add_compile_definitions(_DEBUG)
 add_compile_definitions(_CSHARP)
 
-link_directories(${PROJECT_SOURCE_DIR}/3rd/SOEM/build/Release "C:\\pcap\\Lib\\x64")
+link_directories(${PROJECT_SOURCE_DIR}/3rd/SOEM/build/Release "C:\\pcap\\Lib\\x64" "C:\\Program Files (x86)\\Galil\\gclib\\lib\\dynamic\\x64" "C:\\Program Files (x86)\\Galil\\gclib\\dll\\x64")
 
 include_directories(${PROJECT_SOURCE_DIR}/3rd/SOEM/
                     ${PROJECT_SOURCE_DIR}/3rd/SOEM/oshw
                     ${PROJECT_SOURCE_DIR}/3rd/SOEM/oshw/win32
                     ${PROJECT_SOURCE_DIR}/3rd/SOEM/osal
                     ${PROJECT_SOURCE_DIR}/3rd/SOEM/osal/win32
-                    "C:\\pcap\\Include")
+                    "C:\\pcap\\Include"
+                    "C:\\Program Files (x86)\\Galil\\gclib\\include")
 
 add_library(libnewton SHARED    src/ethercat.cpp
                                 src/maxon.cpp
-                                src/bits.cpp)
+                                src/bits.cpp
+                                src/galil.cpp)
 
-target_link_libraries(libnewton soem Packet wpcap wsock32 ws2_32 Winmm)
+target_link_libraries(libnewton soem Packet wpcap wsock32 ws2_32 Winmm gclib gclibo)
