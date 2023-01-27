@@ -184,7 +184,20 @@ extern "C" {
 			return 3;
 		}
 
-		if(galilController->ReadLimitSwitch(digitalinput))
+		galil::limitnum limit;
+		switch(digitalinput) {
+			case 1:
+				limit = galil::limitnum::left;
+				break;
+			case 2:
+				limit = galil::limitnum::right;
+				break;
+			default:
+				ERR("Invalid input");
+				return 4;
+		}
+
+		if(galilController->ReadLimitSwitch(limit))
 			return 1;
 
 		return 0;

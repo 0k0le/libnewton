@@ -58,7 +58,7 @@ extern "C" {
 	void WINEXPORT MoveGalil(char axis, uint32_t pos);
 	void WINEXPORT GalilVelocity(char axis, uint32_t vel);
 	void WINEXPORT StopGalil(char axis);
-	void WINEXPORT ReadLimitSwitch(uint32_t digitalinput);
+	int WINEXPORT ReadLimitSwitch(uint32_t digitalinput);
 }
 
 #endif
