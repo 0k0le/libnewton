@@ -151,7 +151,7 @@ extern "C" {
 	}
 
 	void DeleteGalilController() {
-		if(galilController == nullptr)
+		if(!galilController || !isrunning)
 			return;
 
 		delete galilController;

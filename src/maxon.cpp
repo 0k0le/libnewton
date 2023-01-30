@@ -282,6 +282,9 @@ void CreateMaxonController(char *device) {
 }
 
 void MoveMaxon(uint32_t position) {
+	if(!isrunning)
+		return;
+
 	if(!maxonController->NewPositionToggle())
 		FATAL("Failed to StartAndEnable");
 
