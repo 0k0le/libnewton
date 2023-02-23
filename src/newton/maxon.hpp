@@ -21,6 +21,7 @@
 #define MAXON_ACTUAL_POSITION_INDEX 0x6064
 #define MAXON_TARGET_VELOCITY_INDEX 0x60FF
 #define MAXON_PROFILE_VELOCITY_INDEX 0x6081
+#define MAXON_CONFIGURE_DI_INDEX 0x3142
 
 #define MAXON_START 0x0007
 #define MAXON_START_AND_ENABLE 0x000F
@@ -61,6 +62,8 @@ namespace maxon {
 			bool IsSafe();
 			bool NewPositionToggle();
 			bool ResetFault();
+			bool ReadDigitalInput(uint32_t ionum);
+			bool ConfigureDigitalInput(uint32_t input, uint32_t gp);
 
 			uint32_t GetCurrentPosition();
 			uint32_t GetTargetPosition();

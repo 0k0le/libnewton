@@ -235,6 +235,19 @@ namespace maxon {
 		return false;
 	}
 
+	bool MaxonController::ReadDigitalInput(uint32_t ionum) {
+
+	}
+
+	bool MaxonController::ConfigureDigitalInput(uint32_t input, uint32_t gp) {
+		int size = 4;
+		gp += 5;
+
+		SDOWrite(_chainposition, MAXON_CONFIGURE_DI_INDEX, input, true, sizeof(gp), &gp);
+
+		return true;
+	}
+
 	bool MaxonController::StartPositionMode() {
 		uint16_t data = 0x003F;
 

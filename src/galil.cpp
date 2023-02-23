@@ -95,6 +95,19 @@ namespace galil {
 		}
 	}
 
+	bool GalilController::ReadAnalogInput(uint32_t input) {
+		int ret;
+		char buffer[32];
+		snprintf(buffer, 32, "MG @AN[%d]");
+
+		GCmdI(_con, buffer, &ret);
+
+		if(ret)
+			return true;
+		
+		return false;
+	}
+
 	bool GalilController::ReadLimitSwitch(limitnum limit) {
 		int limitnum = 0, ret;
 		
