@@ -236,7 +236,7 @@ namespace maxon {
 	}
 
 	bool MaxonController::ReadDigitalInput(uint32_t ionum) {
-
+		return false;
 	}
 
 	bool MaxonController::ConfigureDigitalInput(uint32_t input, uint32_t gp) {

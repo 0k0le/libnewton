@@ -5,7 +5,7 @@ project(libnewton VERSION 1.0)
 set(CMAKE_CXX_STANDARD 11)
 
 set(pylon_DIR "C:\\Program Files\\Basler\\pylon 7\\Development\\CMake\\pylon")
-set(OpenCV_DIR "C:\\opencv\\build\\x64\\vc16\\lib")
+set(OpenCV_DIR "C:\\opencv\\build")
 
 find_package(pylon 7.2.1 REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -21,7 +21,8 @@ link_directories(${PROJECT_SOURCE_DIR}/3rd/SOEM/build/Release
                  "C:\\pcap\\Lib\\x64"
                  "C:\\Program Files (x86)\\Galil\\gclib\\lib\\dynamic\\x64"
                  "C:\\Program Files (x86)\\Galil\\gclib\\dll\\x64"
-                 "C:\\Program Files\\Basler\\pylon 7\\Development\\lib\\x64")
+                 "C:\\Program Files\\Basler\\pylon 7\\Development\\lib\\x64"
+                 "C:\\opencv\\build\\lib\\Release")
 
 include_directories(${PROJECT_SOURCE_DIR}/3rd/SOEM/
                     ${PROJECT_SOURCE_DIR}/3rd/SOEM/oshw
