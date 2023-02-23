@@ -10,15 +10,16 @@
 
 #pragma once
 
+
+#include "macro.hpp"
+#include "heap.hpp"
+
 #include <thread>
 #include <mutex>
 
 // Pylon includes
 #include <pylon/PylonIncludes.h>
 #include <pylon/BaslerUniversalInstantCamera.h>
-
-#include "macro.hpp"
-#include "heap.hpp"
 
 // Using a struct so that the code is simple to modify
 typedef struct FrameGrabThreadData {
@@ -58,3 +59,16 @@ class BaslerCamera {
 		Pylon::CBaslerUniversalInstantCamera *m_camera = nullptr;
 		std::thread m_threadgrabthread;
 };
+
+#ifdef _CSHARP
+
+extern "C" {
+
+void WINEXPORT InitializeBaslerCamera(char *serial, int width, int height);
+void WINEXPORT FreeBaslerCamera();
+void WINEXPORT ChangeBaslerSize(int width, int height);
+void WINEXPORT CopyBaslerFrameToBuffer(uint8_t *buffer);
+
+}
+
+#endif

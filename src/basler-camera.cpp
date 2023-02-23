@@ -170,7 +170,7 @@ void BaslerCamera::m_Initialize(const char *camera_serial) {
         pixelFormat.SetIntValue(PixelType_RGB8packed);
 
 	} catch(const GenericException& e) {
-		FATAL("An exception occured. %s", e.GetDescription());
+		ERR("An exception occured. %s", e.GetDescription());
 	}
 }
 
@@ -194,7 +194,7 @@ DeviceInfoList_t::const_iterator BaslerCamera::m_FindCamera(const char * camera_
 }
 
 BaslerCamera::BaslerCamera(const char *camera_serial, int width, int height) {
-	InformSize(width, height);	
+	InformSize(width, height);
 
 	m_Initialize(camera_serial);
 }
@@ -212,3 +212,44 @@ BaslerCamera::~BaslerCamera() {
 
 	PylonTerminate();
 }
+
+#ifdef _CSHARP
+
+static bool isrunning = false;
+static BaslerCamera *baslerCamera = nullptr;
+
+extern "C" {
+
+void InitializeBaslerCamera(char *serial, int width, int height) {
+	if(isrunning)
+		return;
+
+	baslerCamera = new BaslerCamera(serial, width, height);
+
+	isrunning = true;
+}
+
+void FreeBaslerCamera() {
+	if(!isrunning)
+		return;
+
+	delete baslerCamera;
+}
+
+void ChangeBaslerSize(int width, int height) {
+	if(!isrunning)
+		return;
+
+	baslerCamera->InformSize(width, height);
+}
+
+void CopyBaslerFrameToBuffer(uint8_t *buffer) {
+	if(!isrunning)
+		return;
+
+	baslerCamera->CopyFrameBuffer(buffer);
+}
+
+}
+
+#endif

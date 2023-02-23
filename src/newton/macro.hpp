@@ -10,6 +10,19 @@
 
 #pragma once
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
+#include <stdint.h>
+#include <windows.h>
+#define usleep(val) Sleep(val/1000)
+#define sleep(val) Sleep(val*1000)
+#define WINEXPORT __declspec(dllexport)
+#else
+#define WINEXPORT
+#endif
+
 #include <cstdio>
 #include <cstdlib>
 #include <errno.h>
@@ -34,13 +47,3 @@
 }
 
 #define UNUSED(x)(void)(x)
-
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#define usleep(val) Sleep(val/1000)
-#define sleep(val) Sleep(val*1000)
-#define WINEXPORT __declspec(dllexport)
-#else
-#define WINEXPORT
-#endif
