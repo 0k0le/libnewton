@@ -63,7 +63,8 @@ namespace maxon {
 			bool NewPositionToggle();
 			bool ResetFault();
 			bool ReadDigitalInput(uint32_t ionum);
-			bool ConfigureDigitalInput(uint32_t input, uint32_t gp);
+			bool ConfigureDigitalInput(uint32_t input, uint8_t gp);
+			int ReadDigitalInputConfig(uint32_t input);
 
 			uint32_t GetCurrentPosition();
 			uint32_t GetTargetPosition();
@@ -90,6 +91,8 @@ void WINEXPORT CreateMaxonController(char *device);
 void WINEXPORT DeleteMaxonController();
 void WINEXPORT MoveMaxon(uint32_t position);
 void WINEXPORT SetTargetVelocity(uint32_t velocity);
+void WINEXPORT MaxonConfigureDigitalInput(uint32_t input, uint8_t gp);
+void WINEXPORT MaxonReset();
 
 }
 

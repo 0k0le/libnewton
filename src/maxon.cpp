@@ -239,11 +239,13 @@ namespace maxon {
 		return false;
 	}
 
-	bool MaxonController::ConfigureDigitalInput(uint32_t input, uint32_t gp) {
-		int size = 4;
-		gp += 5;
+	bool MaxonController::ConfigureDigitalInput(uint32_t input, uint8_t gp) {
+		if(input < 1)
+			return false;
 
-		SDOWrite(_chainposition, MAXON_CONFIGURE_DI_INDEX, input, true, sizeof(gp), &gp);
+		int size = 4;
+
+		SDOWrite(_chainposition, MAXON_CONFIGURE_DI_INDEX, input, false, sizeof(gp), &gp);
 
 		return true;
 	}
@@ -258,6 +260,18 @@ namespace maxon {
 		}
 
 		return true;
+	}
+
+	int MaxonController::ReadDigitalInputConfig(uint32_t input) {
+		if(input < 1)
+			return -1;
+		
+		int ret = 0;
+		int size = sizeof(ret);
+
+		SDORead(_chainposition, MAXON_CONFIGURE_DI_INDEX, input, false, &size, &ret);
+
+		return ret;
 	}
 
 } // namespace maxon
@@ -323,6 +337,25 @@ void SetTargetVelocity(uint32_t velocity) {
 	maxonController->Halt();
 	maxonController->SetProfileVelocity(velocity);
 	MoveMaxon(pos);
+}
+
+void MaxonConfigureDigitalInput(uint32_t input, uint8_t gp) {
+	if(!isrunning)
+		return;
+
+	maxonController->ConfigureDigitalInput(input, gp);
+	int ret = maxonController->ReadDigitalInputConfig(input);
+
+	DEBUG("Digital input config: %d", ret);
+
+	maxonController->ResetFault();
+}
+
+void MaxonReset() {
+	if(!isrunning)
+		return;
+
+	maxonController->ResetFault();
 }
 
 }
