@@ -236,6 +236,13 @@ namespace maxon {
 	}
 
 	bool MaxonController::ReadDigitalInput(uint32_t ionum) {
+		int ret, size = 4;
+
+		SDORead(_chainposition, MAXON_DIGITAL_INPUT_INDEX, 0, false, &size, &ret);
+
+		if(ret & (0x1 << (ionum + MAXON_DIGITAL_READ_OFFSET)))
+			return true;
+
 		return false;
 	}
 
