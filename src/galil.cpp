@@ -95,17 +95,14 @@ namespace galil {
 		}
 	}
 
-	bool GalilController::ReadAnalogInput(uint32_t input) {
-		int ret;
+	double GalilController::ReadAnalogInput(uint32_t input) {
+		double ret = 0.0;
 		char buffer[32];
-		snprintf(buffer, 32, "MG @AN[%d]");
+		snprintf(buffer, 32, "MG @AN[%d]", input);
 
-		GCmdI(_con, buffer, &ret);
+		GCmdD(_con, buffer, &ret);
 
-		if(ret)
-			return true;
-		
-		return false;
+		return ret;
 	}
 
 	bool GalilController::ReadLimitSwitch(limitnum limit) {
@@ -214,6 +211,13 @@ extern "C" {
 			return 1;
 
 		return 0;
+	}
+
+	double GalilReadAnalogInput(uint32_t input) {
+		if(!galilController)
+			return 0.0;
+
+		return galilController->ReadAnalogInput(input);
 	}
 
 }

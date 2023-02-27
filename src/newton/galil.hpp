@@ -38,7 +38,7 @@ namespace galil {
 			void Speed(char axis, uint32_t speed);
 			void WaitForMotionComplete(char axis);
 			bool ReadLimitSwitch(limitnum limit);
-			bool ReadAnalogInput(uint32_t input);
+			double ReadAnalogInput(uint32_t input);
 		private:
 			void _Init();
 			void _DefinePositionZero(char axis);
@@ -60,6 +60,7 @@ extern "C" {
 	void WINEXPORT GalilVelocity(char axis, uint32_t vel);
 	void WINEXPORT StopGalil(char axis);
 	int WINEXPORT ReadLimitSwitch(uint32_t digitalinput);
+	double WINEXPORT GalilReadAnalogInput(uint32_t input);
 }
 
 #endif
