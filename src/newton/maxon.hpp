@@ -23,6 +23,10 @@
 #define MAXON_PROFILE_VELOCITY_INDEX 0x6081
 #define MAXON_CONFIGURE_DI_INDEX 0x3142
 #define MAXON_DIGITAL_INPUT_INDEX 0x60FD
+#define MAXON_ANALOG_INPUT_INDEX 0x3162
+#define MAXON_ERROR_REGISTER_INDEX 0x1001
+#define MAXON_STATUS_WORD_INDEX 0x6041
+#define MAXON_POSITION_ERROR_INDEX 0x6065
 
 #define MAXON_START 0x0007
 #define MAXON_START_AND_ENABLE 0x000F
@@ -58,7 +62,7 @@ namespace maxon {
 			bool Continue();
 			bool SetMode(uint8_t mode);
 			bool SetTargetPosition(uint32_t pos);
-			bool SetTargetVelocity(uint32_t vel);
+			bool SetTargetVelocity(int vel);
 			bool SetProfileVelocity(uint32_t vel);
 			bool HaltAndShutdown();
 			bool IsSafe();
@@ -67,8 +71,12 @@ namespace maxon {
 			bool ReadDigitalInput(uint32_t ionum);
 			bool ConfigureDigitalInput(uint32_t input, uint8_t gp);
 			int ReadDigitalInputConfig(uint32_t input);
+			uint16_t ReadAnalogInput(int input);
+			bool IsError();
+			uint16_t ReadStatusWord();
+			void SetPositionError(uint32_t threshold);
 
-			uint32_t GetCurrentPosition();
+			int GetCurrentPosition();
 			uint32_t GetTargetPosition();
 			uint16_t GetCommandWord();
 
@@ -92,9 +100,20 @@ extern "C" {
 void WINEXPORT CreateMaxonController(char *device);
 void WINEXPORT DeleteMaxonController();
 void WINEXPORT MoveMaxon(uint32_t position);
-void WINEXPORT SetTargetVelocity(uint32_t velocity);
+void WINEXPORT SetTargetVelocity(int velocity);
 void WINEXPORT MaxonConfigureDigitalInput(uint32_t input, uint8_t gp);
 void WINEXPORT MaxonReset();
+bool WINEXPORT MaxonReadLimitSwitch(uint32_t input);
+uint16_t WINEXPORT MaxonReadAnalog(int input);
+bool WINEXPORT MaxonIsError();
+uint16_t WINEXPORT MaxonGetStatusWord();
+void WINEXPORT MaxonSetPositionError(uint32_t threshold);
+void WINEXPORT MaxonStartVelocityMode(int targetVelocity);
+void WINEXPORT MaxonSetVelocityMode();
+void WINEXPORT MaxonStartPositionMode(int targetPosition);
+void WINEXPORT MaxonSetPositionMode();
+void WINEXPORT MaxonHalt();
+int WINEXPORT MaxonGetCurrentPosition();
 
 }
 

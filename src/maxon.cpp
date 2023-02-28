@@ -35,7 +35,7 @@ namespace maxon {
 			return false;
 		}
 
-		usleep(500000);
+		usleep(100000);
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(cmd2), &cmd2);
 
@@ -43,6 +43,8 @@ namespace maxon {
 			ERR("Machine is not safe after switchon command issued");
 			return false;
 		}
+
+		usleep(100000);
 
 		return true;	
 	}
@@ -58,7 +60,9 @@ namespace maxon {
 		return true;
 	}
 
-	bool MaxonController::SetTargetVelocity(uint32_t vel) {
+	bool MaxonController::SetTargetVelocity(int vel) {
+		usleep(100000);
+
 		SDOWrite(_chainposition, MAXON_TARGET_VELOCITY_INDEX, 0, false, sizeof(vel), &vel);
 
 		if(!IsSafe()) {
@@ -82,6 +86,8 @@ namespace maxon {
 
 	bool MaxonController::StartVelocityMode() {
 		uint16_t cmd = MAXON_START_VELOCITY;
+
+		usleep(100000);
 
 		SDOWrite(_chainposition, MAXON_COMMAND_INDEX, 0, false, sizeof(uint16_t), &cmd);
 
@@ -192,9 +198,11 @@ namespace maxon {
 		return true;
 	}
 
-	uint32_t MaxonController::GetCurrentPosition() {
+	int MaxonController::GetCurrentPosition() {
 		int ret = 0;
-		int size = 4;
+		int size = sizeof(ret);
+
+		usleep(100000);
 
 		// TODO: This is very unsafe!! will fix later!
 		SDORead(_chainposition, MAXON_ACTUAL_POSITION_INDEX, 0, false, &size, &ret);
@@ -202,7 +210,7 @@ namespace maxon {
 		DEBUG("Maxon current position: %d", ret);
 		DEBUG("Maxon SDORead Size: %d", size);
 
-		return static_cast<uint32_t>(ret);
+		return ret;
 	}
 
 	uint16_t MaxonController::GetCommandWord() {
@@ -281,6 +289,45 @@ namespace maxon {
 		return ret;
 	}
 
+	uint16_t MaxonController::ReadAnalogInput(int input) {
+		if(input < 1)
+			return 0;
+
+		uint16_t ret = 0;
+		int size = sizeof(ret);
+
+		SDORead(_chainposition, MAXON_ANALOG_INPUT_INDEX, input, false, &size, &ret);
+
+		return ret;
+	}
+
+	bool MaxonController::IsError() {
+		uint8_t ret = 0;
+		int size = sizeof(ret);
+
+		SDORead(_chainposition, MAXON_ERROR_REGISTER_INDEX, 0, false, &size, &ret);
+
+		if(ret)
+			return true;
+
+		return false;
+	}
+
+	uint16_t MaxonController::ReadStatusWord() {
+		uint16_t ret = 0;
+		int size = sizeof(ret);
+
+		SDORead(_chainposition, MAXON_STATUS_WORD_INDEX, 0, false, &size, &ret);
+
+		return ret;
+	}
+
+	void MaxonController::SetPositionError(uint32_t threshold) {
+		int size = sizeof(uint32_t);
+
+		SDOWrite(_chainposition, MAXON_FOLLOW_ERROR_INDEX, 0, false, size, &threshold);
+	}
+
 } // namespace maxon
   
 
@@ -289,9 +336,9 @@ namespace maxon {
 // For CSHARP
 static bool isrunning = false;
 static maxon::MaxonController *maxonController = nullptr;
+uint8_t maxonmode = 0;
 
 extern "C" {
-
 void CreateMaxonController(char *device) {
 	if(isrunning)
 		return;
@@ -302,17 +349,59 @@ void CreateMaxonController(char *device) {
 
 	maxonController->ResetFault();
 
+	//MaxonSetPositionMode();
+	//MaxonStartPositionMode(0);
+}
+
+void MaxonSetPositionMode() {
+	if(!isrunning)
+		return;
+	
 	if(!maxonController->SetMode(MAXON_MODE_POSITION))
 		FATAL("Failed to switch to position mode");
+}
 
+void MaxonStartPositionMode(int targetPosition) {
+	if(!isrunning)
+		return;
+	
 	if(!maxonController->StartAndEnable())
 		FATAL("Failed to StartAndEnable()");
 	
-	if(!maxonController->SetTargetPosition(0))
+	if(!maxonController->SetTargetPosition(targetPosition))
 		FATAL("Failed to set target position");
 
 	if(!maxonController->StartPositionMode())
 		FATAL("Failed to start position mode");
+}
+
+void MaxonSetVelocityMode() {
+	if(!isrunning)
+		return;
+
+	if(!maxonController->SetMode(MAXON_MODE_VELOCITY))
+		FATAL("Failed to switch to position mode");
+}
+
+void MaxonStartVelocityMode(int targetVelocity) {
+	if(!isrunning)
+		return;
+
+	if(!maxonController->StartAndEnable())
+		FATAL("Failed to StartAndEnable()");
+	
+	if(!maxonController->SetTargetVelocity(targetVelocity))
+		FATAL("Failed to set target position");
+
+	if(!maxonController->StartVelocityMode())
+		FATAL("Failed to start position mode");
+}
+
+void MaxonSetPositionError(uint32_t threshold) {
+	if(!isrunning)
+		return;
+
+	maxonController->SetPositionError(threshold);
 }
 
 void MoveMaxon(uint32_t position) {
@@ -336,7 +425,7 @@ void DeleteMaxonController() {
 	delete maxonController;
 }
 
-void SetTargetVelocity(uint32_t velocity) {
+void SetTargetVelocity(int velocity) {
 	if(!isrunning)
 		return;
 
@@ -364,6 +453,49 @@ void MaxonReset() {
 
 	maxonController->ResetFault();
 }
+
+bool MaxonReadLimitSwitch(uint32_t input) {
+	if(!isrunning)
+		return false;
+
+	return maxonController->ReadDigitalInput(input);
+}
+
+uint16_t MaxonReadAnalog(int input) {
+	if(!isrunning)
+		return false;
+
+	return maxonController->ReadAnalogInput(input);
+}
+
+bool MaxonIsError() {
+	if(!isrunning)
+		return false;
+
+	return maxonController->IsError();
+}
+
+uint16_t MaxonGetStatusWord() {
+	if(!isrunning)
+		return 0;
+
+	return maxonController->ReadStatusWord();
+}
+
+void MaxonHalt() {
+	if(!isrunning)
+		return;
+
+	maxonController->Halt();
+}
+
+int MaxonGetCurrentPosition() {
+	if(!isrunning)
+		FATAL("Couldnt get maxon current position");
+
+	return maxonController->GetCurrentPosition();
+}
+
 
 }
 
