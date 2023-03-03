@@ -79,6 +79,9 @@ namespace net {
 	int TCPClient::StreamRead(void *buffer, size_t size) {
 		int ret = 0, total = 0;
 
+		if(m_active == false)
+			return 0;
+
 		// TODO: implement select as a timeout
 
 		// Read until stream is filled
@@ -101,6 +104,9 @@ namespace net {
 
 	int TCPClient::StreamWrite(void *buffer, size_t size) {
 		int ret = 0, total = 0;
+
+		if(m_active == false)
+			return 0;
 
 		// TODO: implement select as a timeout
 

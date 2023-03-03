@@ -39,9 +39,9 @@ class BaslerCamera {
 		void InformSize(int width, int height);
 
 		// Use this to get local copy of buffer!
-		void CopyFrameBuffer(uint8_t *dest);
+		bool CopyFrameBuffer(uint8_t *dest);
 		void CopySize(int *width, int *height);
-		void SaveImage(std::string location);
+		bool SaveImage(std::string location);
 	private:
 		void m_Initialize(const char *camera_serial);
 		Pylon::DeviceInfoList_t::const_iterator m_FindCamera(const char * camera_serial,
@@ -52,7 +52,6 @@ class BaslerCamera {
 
 		static std::mutex m_exitmtx;
 		static std::mutex m_framebuffermtx;
-
 		static int m_width, m_height;
 
 		FRAMEGRABDATA m_framegrabdata;
@@ -67,7 +66,7 @@ extern "C" {
 void WINEXPORT InitializeBaslerCamera(char *serial, int width, int height);
 void WINEXPORT FreeBaslerCamera();
 void WINEXPORT ChangeBaslerSize(int width, int height);
-void WINEXPORT CopyBaslerFrameToBuffer(uint8_t *buffer);
+bool WINEXPORT CopyBaslerFrameToBuffer(uint8_t *buffer);
 
 }
 

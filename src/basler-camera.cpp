@@ -87,17 +87,27 @@ bool BaslerCamera::m_CheckExit() {
 	return exit;
 }
 
-void BaslerCamera::CopyFrameBuffer(uint8_t *dest) {
+bool BaslerCamera::CopyFrameBuffer(uint8_t *dest) {
+	if(!m_camera)
+		return false;
+
 	m_framebuffermtx.lock();
 	memcpy(dest, framebuffer, m_width * m_height * BASLER_NCHANNELS);
 	m_framebuffermtx.unlock();
+
+	return true;
 }
 
-void BaslerCamera::SaveImage(std::string location) {
+bool BaslerCamera::SaveImage(std::string location) {
+	if(!m_camera)
+		return false;
+
 	m_framebuffermtx.lock();
 	takephoto = true;
 	save_location = location;
 	m_framebuffermtx.unlock();
+
+	return true;
 }
 
 // Only one instance of this function can run at a time
@@ -243,11 +253,13 @@ void ChangeBaslerSize(int width, int height) {
 	baslerCamera->InformSize(width, height);
 }
 
-void CopyBaslerFrameToBuffer(uint8_t *buffer) {
+bool CopyBaslerFrameToBuffer(uint8_t *buffer) {
 	if(!isrunning)
-		return;
+		return false;
 
 	baslerCamera->CopyFrameBuffer(buffer);
+
+	return true;
 }
 
 }
