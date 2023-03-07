@@ -110,6 +110,33 @@ bool BaslerCamera::SaveImage(std::string location) {
 	return true;
 }
 
+bool BaslerCamera::GetMaxExposure(double *exposuretime) {
+	if(!m_camera || !exposuretime)
+		return false;
+
+	*exposuretime = m_camera->ExposureTime.GetMax();
+
+	return true;
+}
+
+bool BaslerCamera::GetMinExposure(double *exposuretime) {
+	if(!m_camera || !exposuretime)
+		return false; 
+
+	*exposuretime = m_camera->ExposureTime.GetMin();
+
+	return true;
+}
+
+bool BaslerCamera::SetExposure(double exposuretime) {
+	if(!m_camera)
+		return false;
+
+	m_camera->ExposureTime.SetValue(exposuretime);	
+
+	return true;
+}
+
 // Only one instance of this function can run at a time
 void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 	CGrabResultPtr grabresult;

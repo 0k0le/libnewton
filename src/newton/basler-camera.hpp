@@ -42,6 +42,9 @@ class BaslerCamera {
 		bool CopyFrameBuffer(uint8_t *dest);
 		void CopySize(int *width, int *height);
 		bool SaveImage(std::string location);
+		bool SetExposure(double exposuretime);
+		bool GetMaxExposure(double *exposuretime);
+		bool GetMinExposure(double *exposuretime);
 	private:
 		void m_Initialize(const char *camera_serial);
 		Pylon::DeviceInfoList_t::const_iterator m_FindCamera(const char * camera_serial,
