@@ -45,6 +45,10 @@ class BaslerCamera {
 		bool SetExposure(double exposuretime);
 		bool GetMaxExposure(double *exposuretime);
 		bool GetMinExposure(double *exposuretime);
+		void SetAutoGain(bool autogain);
+		void SetBrightness(double value);
+		double GetMaxGain();
+		double GetMinGain();
 	private:
 		void m_Initialize(const char *camera_serial);
 		Pylon::DeviceInfoList_t::const_iterator m_FindCamera(const char * camera_serial,

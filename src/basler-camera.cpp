@@ -9,6 +9,7 @@
  */
 
 #include "newton/basler-camera.hpp"
+#include "pylon/_BaslerUniversalCameraParams.h"
 #include <pylon/TypeMappings.h>
 #include <opencv2/opencv.hpp>
 
@@ -137,6 +138,37 @@ bool BaslerCamera::SetExposure(double exposuretime) {
 	return true;
 }
 
+void BaslerCamera::SetAutoGain(bool autogain) {
+	if(!m_camera)
+		return;
+
+	if(autogain)
+		m_camera->GainAuto.SetValue(Basler_UniversalCameraParams::GainAuto_Continuous);
+	else
+		m_camera->GainAuto.SetValue(Basler_UniversalCameraParams::GainAuto_Off);
+}
+
+void BaslerCamera::SetBrightness(double value) {
+	if(!m_camera)
+		return;
+
+	m_camera->AutoTargetBrightness.SetValue(value);	
+}
+
+double BaslerCamera::GetMaxGain() {
+	if(!m_camera)
+		return 0;
+
+	return m_camera->AutoGainUpperLimit.GetMax();
+}
+
+double BaslerCamera::GetMinGain() {
+	if(!m_camera)
+		return 0;
+
+	return m_camera->AutoGainLowerLimit.GetMin();
+}
+
 // Only one instance of this function can run at a time
 void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 	CGrabResultPtr grabresult;
@@ -205,6 +237,10 @@ void BaslerCamera::m_Initialize(const char *camera_serial) {
         offsetX.TrySetToMinimum();
         offsetY.TrySetToMinimum();
         pixelFormat.SetIntValue(PixelType_RGB8packed);
+
+		m_camera->AutoGainUpperLimit.SetValue(GetMaxGain());
+		m_camera->AutoGainLowerLimit.SetValue(GetMinGain());
+		SetAutoGain(true);
 
 	} catch(const GenericException& e) {
 		ERR("An exception occured. %s", e.GetDescription());
