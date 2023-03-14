@@ -179,24 +179,25 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 	// Start grabbing frames
 	framegrabdata->camera->StartGrabbing();
 
+	Mat img;
+
 	while(!m_CheckExit()) {
 		framegrabdata->camera->RetrieveResult(8000, grabresult, TimeoutHandling_Return);	
 
 		if(grabresult->GrabSucceeded()) {
-
 			// Get pointer to basler buffer
 			uint8_t *baslerbuffer = (uint8_t*)grabresult->GetBuffer();
 
 			m_framebuffermtx.lock();
-			// Hack way to resize image
-			Mat img(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
-
+			
 			if(takephoto) {
+				img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 				takephoto = false;
 				imwrite(save_location.c_str(), img);
 			}
 
-			resize(img, img, Size(m_width, m_height));
+			img = Mat(m_width, m_height, CV_8UC3, baslerbuffer);	
+
 			if(framebuffer != nullptr)
 				memcpy(framebuffer, img.data, m_width * m_height * BASLER_NCHANNELS);
 			m_framebuffermtx.unlock();
