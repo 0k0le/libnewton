@@ -159,14 +159,21 @@ double BaslerCamera::GetMaxGain() {
 	if(!m_camera)
 		return 0;
 
-	return m_camera->AutoGainUpperLimit.GetMax();
+	return m_camera->Gain.GetMax();
 }
 
 double BaslerCamera::GetMinGain() {
 	if(!m_camera)
 		return 0;
 
-	return m_camera->AutoGainLowerLimit.GetMin();
+	return m_camera->Gain.GetMin();
+}
+
+void BaslerCamera::SetGain(double gain) {
+	if(!m_camera)
+		return;
+
+	m_camera->Gain.SetValue(gain);
 }
 
 // Only one instance of this function can run at a time
@@ -241,7 +248,7 @@ void BaslerCamera::m_Initialize(const char *camera_serial) {
 
 		m_camera->AutoGainUpperLimit.SetValue(GetMaxGain());
 		m_camera->AutoGainLowerLimit.SetValue(GetMinGain());
-		SetAutoGain(true);
+		SetAutoGain(false);
 
 	} catch(const GenericException& e) {
 		ERR("An exception occured. %s", e.GetDescription());

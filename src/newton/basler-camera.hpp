@@ -49,6 +49,7 @@ class BaslerCamera {
 		void SetBrightness(double value);
 		double GetMaxGain();
 		double GetMinGain();
+		void SetGain(double gain);
 	private:
 		void m_Initialize(const char *camera_serial);
 		Pylon::DeviceInfoList_t::const_iterator m_FindCamera(const char * camera_serial,
