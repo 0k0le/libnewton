@@ -205,49 +205,50 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 	CIntegerParameter width(framegrabdata->camera->GetNodeMap(), "Width");
     CIntegerParameter height(framegrabdata->camera->GetNodeMap(), "Height");
 
-	if(!width.IsValid()) {
-		ERR("m_FrameGrabThread: Failed to get valid width node");
-		return;
-	}
+	try {
+		if(!width.IsValid())
+			throw GENERIC_EXCEPTION("m_FrameGrabThread: Failed to get valid width node");
+		if(!height.IsValid())
+			throw GENERIC_EXCEPTION("m_FrameGrabThread: Failed to valid Height node");
 
-	if(!height.IsValid()) {
-		ERR("m_FrameGrabThread: Failed to valid Height node");
-		return;
-	}
+		// Start grabbing frames
+		framegrabdata->camera->StartGrabbing();
 
-	// Start grabbing frames
-	framegrabdata->camera->StartGrabbing();
+		while(!m_CheckExit(framegrabdata->exitmtx, framegrabdata->grabbingframes)) {
+			framegrabdata->camera->RetrieveResult(8000, grabresult, TimeoutHandling_Return);	
 
-	while(!m_CheckExit(framegrabdata->exitmtx, framegrabdata->grabbingframes)) {
-		framegrabdata->camera->RetrieveResult(8000, grabresult, TimeoutHandling_Return);	
+			if(grabresult->GrabSucceeded()) {
+				// Get pointer to basler buffer
+				uint8_t *baslerbuffer = (uint8_t*)grabresult->GetBuffer();
+				if(!baslerbuffer)
+					throw GENERIC_EXCEPTION("Failed to get baslerbuffer");
 
-		if(grabresult->GrabSucceeded()) {
-			// Get pointer to basler buffer
-			uint8_t *baslerbuffer = (uint8_t*)grabresult->GetBuffer();
-			if(!baslerbuffer) {
-				ERR("Failed to get baslerbuffer");
-				return;
+				framegrabdata->framebuffermtx->lock();
+
+				Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
+
+				if(*(framegrabdata->takephoto)) {
+					*(framegrabdata->takephoto) = false;
+					imwrite(framegrabdata->savelocation->c_str(), img);
+					continue;
+				}
+
+				int reqwidth = *(framegrabdata->width);
+				int reqheight = *(framegrabdata->height);
+
+				resize(img, img, Size(reqwidth, reqheight));
+
+				uint8_t *framebuffer = *(framegrabdata->framebuffer);
+
+				if(framebuffer != nullptr)
+					memcpy(framebuffer, img.data, reqwidth * reqheight * BASLER_NCHANNELS);
+
+				framegrabdata->framebuffermtx->unlock();
 			}
-
-			framegrabdata->framebuffermtx->lock();
-
-			Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
-
-			if(*(framegrabdata->takephoto)) {
-				*(framegrabdata->takephoto) = false;
-				imwrite(framegrabdata->savelocation->c_str(), img);
-				continue;
-			}
-
-			resize(img, img, Size(*(framegrabdata->width), *(framegrabdata->height)));
-
-			uint8_t *framebuffer = *(framegrabdata->framebuffer);
-
-			if(framebuffer != nullptr)
-				memcpy(framebuffer, img.data, (*(framegrabdata->width)) * (*(framegrabdata->height)) * BASLER_NCHANNELS);
-
-			framegrabdata->framebuffermtx->unlock();
 		}
+	} catch(const GenericException &e) {
+		ERR("An exception occured: %s", e.GetDescription());
+		framegrabdata->framebuffermtx->unlock(); // Make sure lock is removed
 	}
 
 	DEBUG("Grab thread exiting\n");

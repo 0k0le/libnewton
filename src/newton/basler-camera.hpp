@@ -76,7 +76,8 @@ class BaslerCamera {
 		static void m_FrameGrabThread(PFRAMEGRABDATA framegrabdata);
 		static bool m_CheckExit(std::mutex *exitmtx, bool *grabbingframes);
 
-		int m_width, m_height;
+		int m_width;
+		int m_height;
 		std::mutex m_exitmtx;
 		std::mutex m_framebuffermtx;
 		uint8_t *m_framebuffer = nullptr;
