@@ -26,7 +26,6 @@ typedef struct FrameGrabThreadData {
 	Pylon::CBaslerUniversalInstantCamera *camera;
 	uint8_t **framebuffer;
 	std::mutex *framebuffermtx;
-	bool *mastercontinue;
 } FRAMEGRABDATA, *PFRAMEGRABDATA;
 
 #define BASLER_NCHANNELS 3
@@ -72,12 +71,11 @@ class BaslerCamera {
 		static bool m_CheckExit();
 
 		static std::mutex m_exitmtx;
-		std::mutex m_framebuffermtx;
 		static int m_width, m_height;
 
+		static std::mutex m_framebuffermtx;
 		uint8_t *m_framebuffer = nullptr;
 		bool m_failure = false;
-		bool m_mastercontinue = false;
 		FRAMEGRABDATA m_framegrabdata;
 		Pylon::CBaslerUniversalInstantCamera *m_camera = nullptr;
 		std::thread m_threadgrabthread;
