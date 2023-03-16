@@ -24,6 +24,7 @@
 // Using a struct so that the code is simple to modify
 typedef struct FrameGrabThreadData {
 	Pylon::CBaslerUniversalInstantCamera *camera;
+	uint8_t **framebuffer;
 } FRAMEGRABDATA, *PFRAMEGRABDATA;
 
 #define BASLER_NCHANNELS 3
@@ -33,23 +34,33 @@ class BaslerCamera {
 		BaslerCamera(const char *camera_serial, int width, int height);
 		~BaslerCamera();
 
+		// Start grabbing frames
 		bool StartGrabbing();
-		void StopGrabbing();
+		bool StopGrabbing();
 
-		void InformSize(int width, int height);
+		// This will inform the frame grabber thread how to resize the frame
+		bool InformSize(int width, int height);
 
-		// Use this to get local copy of buffer!
+		// Copy frame
 		bool CopyFrameBuffer(uint8_t *dest);
-		void CopySize(int *width, int *height);
+		
+		// Fetch currently used resize values
+		bool CopySize(int *width, int *height);
+		
+		// Save full sized image
 		bool SaveImage(std::string location);
+		
+		// Exposure
 		bool SetExposure(double exposuretime);
 		bool GetMaxExposure(double *exposuretime);
 		bool GetMinExposure(double *exposuretime);
-		void SetAutoGain(bool autogain);
-		void SetBrightness(double value);
-		double GetMaxGain();
-		double GetMinGain();
-		void SetGain(double gain);
+		
+		// Gain/Brightness
+		bool SetAutoGain(bool autogain);
+		bool SetBrightness(double value);
+		bool GetMaxGain(double *maxgain);
+		bool GetMinGain(double *mingain);
+		bool SetGain(double gain);
 	private:
 		void m_Initialize(const char *camera_serial);
 		Pylon::DeviceInfoList_t::const_iterator m_FindCamera(const char * camera_serial,
@@ -62,6 +73,8 @@ class BaslerCamera {
 		static std::mutex m_framebuffermtx;
 		static int m_width, m_height;
 
+		uint8_t *m_framebuffer = nullptr;
+		bool m_failure = false;
 		FRAMEGRABDATA m_framegrabdata;
 		Pylon::CBaslerUniversalInstantCamera *m_camera = nullptr;
 		std::thread m_threadgrabthread;

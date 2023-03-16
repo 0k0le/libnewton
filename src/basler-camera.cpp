@@ -19,7 +19,6 @@ using namespace GenApi;
 using namespace cv;
 
 // Statics
-static uint8_t *framebuffer = nullptr;
 static bool grabbingframes = false;
 static bool takephoto = false;
 static std::string save_location;
@@ -28,30 +27,40 @@ std::mutex BaslerCamera::m_framebuffermtx;
 int BaslerCamera::m_width;
 int BaslerCamera::m_height;
 
-void BaslerCamera::CopySize(int *width, int *height) {
+bool BaslerCamera::CopySize(int *width, int *height) {
+	if(!m_camera || !width || !height || m_failure)
+		return false;
+
 	m_framebuffermtx.lock();
 	*width = m_width;
 	*height = m_height;
 	m_framebuffermtx.unlock();
+
+	return true;
 }
 
-void BaslerCamera::InformSize(int width, int height) {
+bool BaslerCamera::InformSize(int width, int height) {
+	if(!m_camera || m_failure)
+		return false;
+
 	m_framebuffermtx.lock();
 
 	m_height = height;
 	m_width = width;
 
-	if(framebuffer != nullptr)
-		free(framebuffer);
+	if(m_framebuffer != nullptr)
+		free(m_framebuffer);
 
-	framebuffer = (uint8_t *)ec_malloc(width * height * BASLER_NCHANNELS);
+	m_framebuffer = (uint8_t *)ec_malloc(width * height * BASLER_NCHANNELS);
 
 	m_framebuffermtx.unlock();
+
+	return true;
 }
 
 // Start frame grab thread
 bool BaslerCamera::StartGrabbing() {
-	if(m_camera == nullptr)
+	if(m_camera == nullptr || m_failure)
 		return false;
 
 	m_exitmtx.lock();
@@ -62,20 +71,24 @@ bool BaslerCamera::StartGrabbing() {
 	m_exitmtx.unlock();
 
 	m_framegrabdata.camera = m_camera;
+	m_framegrabdata.framebuffer = &m_framebuffer;
 	m_threadgrabthread = std::thread(m_FrameGrabThread, &m_framegrabdata);
 
 	return true;
 }
 
-void BaslerCamera::StopGrabbing() {
-	if(grabbingframes == false)
-		return;
+bool BaslerCamera::StopGrabbing() {
+	// If thread is not executing then exit.
+	if(!m_threadgrabthread.joinable())
+		return false;
 
 	m_exitmtx.lock();
 	grabbingframes = false;
 	m_exitmtx.unlock();
 
 	m_threadgrabthread.join();
+
+	return true;
 }
 
 bool BaslerCamera::m_CheckExit() {
@@ -90,18 +103,18 @@ bool BaslerCamera::m_CheckExit() {
 }
 
 bool BaslerCamera::CopyFrameBuffer(uint8_t *dest) {
-	if(!m_camera)
+	if(!m_camera || m_failure)
 		return false;
 
 	m_framebuffermtx.lock();
-	memcpy(dest, framebuffer, m_width * m_height * BASLER_NCHANNELS);
+	memcpy(dest, m_framebuffer, m_width * m_height * BASLER_NCHANNELS);
 	m_framebuffermtx.unlock();
 
 	return true;
 }
 
 bool BaslerCamera::SaveImage(std::string location) {
-	if(!m_camera)
+	if(!m_camera || m_failure)
 		return false;
 
 	m_framebuffermtx.lock();
@@ -113,7 +126,7 @@ bool BaslerCamera::SaveImage(std::string location) {
 }
 
 bool BaslerCamera::GetMaxExposure(double *exposuretime) {
-	if(!m_camera || !exposuretime)
+	if(!m_camera || !exposuretime || m_failure)
 		return false;
 
 	*exposuretime = m_camera->ExposureTime.GetMax();
@@ -122,7 +135,7 @@ bool BaslerCamera::GetMaxExposure(double *exposuretime) {
 }
 
 bool BaslerCamera::GetMinExposure(double *exposuretime) {
-	if(!m_camera || !exposuretime)
+	if(!m_camera || !exposuretime || m_failure)
 		return false; 
 
 	*exposuretime = m_camera->ExposureTime.GetMin();
@@ -131,7 +144,7 @@ bool BaslerCamera::GetMinExposure(double *exposuretime) {
 }
 
 bool BaslerCamera::SetExposure(double exposuretime) {
-	if(!m_camera)
+	if(!m_camera || m_failure)
 		return false;
 
 	m_camera->ExposureTime.SetValue(exposuretime);	
@@ -139,42 +152,52 @@ bool BaslerCamera::SetExposure(double exposuretime) {
 	return true;
 }
 
-void BaslerCamera::SetAutoGain(bool autogain) {
-	if(!m_camera)
-		return;
+bool BaslerCamera::SetAutoGain(bool autogain) {
+	if(!m_camera || m_failure)
+		return false;
 
 	if(autogain)
 		m_camera->GainAuto.SetValue(Basler_UniversalCameraParams::GainAuto_Continuous);
 	else
 		m_camera->GainAuto.SetValue(Basler_UniversalCameraParams::GainAuto_Off);
+
+	return true;
 }
 
-void BaslerCamera::SetBrightness(double value) {
-	if(!m_camera)
-		return;
+bool BaslerCamera::SetBrightness(double value) {
+	if(!m_camera || m_failure)
+		return false;
 
-	m_camera->AutoTargetBrightness.SetValue(value);	
+	m_camera->AutoTargetBrightness.SetValue(value);
+
+	return true;
 }
 
-double BaslerCamera::GetMaxGain() {
-	if(!m_camera)
-		return 0;
+bool BaslerCamera::GetMaxGain(double *maxgain) {
+	if(!m_camera || !maxgain || m_failure)
+		return false;
 
-	return m_camera->Gain.GetMax();
+	*maxgain = m_camera->Gain.GetMax();
+
+	return true;
 }
 
-double BaslerCamera::GetMinGain() {
-	if(!m_camera)
-		return 0;
+bool BaslerCamera::GetMinGain(double *mingain) {
+	if(!m_camera || !mingain || m_failure)
+		return false;
 
-	return m_camera->Gain.GetMin();
+	*mingain = m_camera->Gain.GetMin();
+	
+	return true;
 }
 
-void BaslerCamera::SetGain(double gain) {
-	if(!m_camera)
-		return;
+bool BaslerCamera::SetGain(double gain) {
+	if(!m_camera || m_failure)
+		return false;
 
 	m_camera->Gain.SetValue(gain);
+
+	return true;
 }
 
 // Only one instance of this function can run at a time
@@ -183,6 +206,16 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 
 	CIntegerParameter width(framegrabdata->camera->GetNodeMap(), "Width");
     CIntegerParameter height(framegrabdata->camera->GetNodeMap(), "Height");
+
+	if(!width.IsValid()) {
+		ERR("m_FrameGrabThread: Failed to get valid width node");
+		return;
+	}
+
+	if(!height.IsValid()) {
+		ERR("m_FrameGrabThread: Failed to valid Height node");
+		return;
+	}
 
 	// Start grabbing frames
 	framegrabdata->camera->StartGrabbing();
@@ -193,6 +226,10 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 		if(grabresult->GrabSucceeded()) {
 			// Get pointer to basler buffer
 			uint8_t *baslerbuffer = (uint8_t*)grabresult->GetBuffer();
+			if(!baslerbuffer) {
+				ERR("Failed to get baslerbuffer");
+				return;
+			}
 
 			m_framebuffermtx.lock();
 
@@ -206,14 +243,16 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 
 			resize(img, img, Size(m_width, m_height));
 
+			uint8_t *framebuffer = *(framegrabdata->framebuffer);
+
 			if(framebuffer != nullptr)
 				memcpy(framebuffer, img.data, m_width * m_height * BASLER_NCHANNELS);
+
 			m_framebuffermtx.unlock();
 		}
 	}
 
-	printf("Grab thread exiting\n");
-	fflush(stdout);
+	DEBUG("Grab thread exiting\n");
 }
 
 void BaslerCamera::m_Initialize(const char *camera_serial) {
@@ -241,31 +280,59 @@ void BaslerCamera::m_Initialize(const char *camera_serial) {
 		CIntegerParameter offsetY(m_camera->GetNodeMap(), "OffsetY");
 		CEnumParameter pixelFormat(m_camera->GetNodeMap(), "PixelFormat");
 
+		if(!width.IsValid())
+			throw GENERIC_EXCEPTION("Failed to retrieve width node from basler camera");
+
+		if(!height.IsValid())
+			throw GENERIC_EXCEPTION("Failed to retrieve height node from basler camera");
+
+		if(!offsetX.IsValid())
+			throw GENERIC_EXCEPTION("Failed to retrieve OffsetX node from basler camera");
+
+		if(!offsetY.IsValid())
+			throw GENERIC_EXCEPTION("Failed to retrieve OffsetY node from basler camera");
+
+		if(!pixelFormat.IsValid())
+			throw GENERIC_EXCEPTION("Failed to retrieve PixelFormat node from basler camera");
+
         width.TrySetToMaximum();
         height.TrySetToMaximum();
         offsetX.TrySetToMinimum();
         offsetY.TrySetToMinimum();
         pixelFormat.SetIntValue(PixelType_RGB8packed);
 
-		m_camera->AutoGainUpperLimit.SetValue(GetMaxGain());
-		m_camera->AutoGainLowerLimit.SetValue(GetMinGain());
-		SetAutoGain(false);
+		double maxgain = 0.0, mingain = 0.0;
+
+		if(!GetMaxGain(&maxgain))
+			throw GENERIC_EXCEPTION("failed to recieve maxgain");
+		
+		if(!GetMinGain(&mingain))
+			throw GENERIC_EXCEPTION("Failed to recieve mingain");
+
+		m_camera->AutoGainUpperLimit.SetValue(maxgain);
+		m_camera->AutoGainLowerLimit.SetValue(mingain);
+		
+		if(!SetAutoGain(false))
+			throw GENERIC_EXCEPTION("Failed to turn off autogain");
 
 	} catch(const GenericException& e) {
 		ERR("An exception occured. %s", e.GetDescription());
+		m_failure = true;
 	}
 }
 
 DeviceInfoList_t::const_iterator BaslerCamera::m_FindCamera(const char * camera_serial,
 															CTlFactory& TlFactory,
 															DeviceInfoList_t& lstDevices) {
-    TlFactory.EnumerateDevices(lstDevices); // Get list of devices on network
+    if(!camera_serial)
+		return nullptr;
+
+	TlFactory.EnumerateDevices(lstDevices); // Get list of devices on network
 
     DeviceInfoList_t::const_iterator it; // iterate through devices to find one that matches serial number
     if(!lstDevices.empty()) {
         for(it = lstDevices.begin(); it != lstDevices.end(); ++it) {
-            printf("Camera found on network: %s\n", it->GetSerialNumber().c_str());
-			fflush(stdout);
+            DEBUG("Camera found on network: %s\n", it->GetSerialNumber().c_str());
             if(strcmp(it->GetSerialNumber().c_str(), camera_serial) == 0) {
                 return it;
             }
@@ -289,8 +356,8 @@ BaslerCamera::~BaslerCamera() {
 		delete m_camera;
 	}
 
-	if(framebuffer != nullptr)
-		free(framebuffer);
+	if(m_framebuffer != nullptr)
+		free(m_framebuffer);
 
 	PylonTerminate();
 }
