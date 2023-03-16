@@ -25,7 +25,13 @@
 typedef struct FrameGrabThreadData {
 	Pylon::CBaslerUniversalInstantCamera *camera;
 	uint8_t **framebuffer;
+	int *width;
+	int *height;
 	std::mutex *framebuffermtx;
+	std::mutex *exitmtx;
+	bool *takephoto;
+	bool *grabbingframes;
+	std::string *savelocation;
 } FRAMEGRABDATA, *PFRAMEGRABDATA;
 
 #define BASLER_NCHANNELS 3
@@ -68,14 +74,16 @@ class BaslerCamera {
 				Pylon::CTlFactory& TlFactory,
 				Pylon::DeviceInfoList_t& lstDevices);
 		static void m_FrameGrabThread(PFRAMEGRABDATA framegrabdata);
-		static bool m_CheckExit();
+		static bool m_CheckExit(std::mutex *exitmtx, bool *grabbingframes);
 
-		static std::mutex m_exitmtx;
-		static int m_width, m_height;
-
+		int m_width, m_height;
+		std::mutex m_exitmtx;
 		std::mutex m_framebuffermtx;
 		uint8_t *m_framebuffer = nullptr;
 		bool m_failure = false;
+		bool m_takephoto = false;
+		bool m_grabbingframes = false;
+		std::string m_savelocation;
 		FRAMEGRABDATA m_framegrabdata;
 		Pylon::CBaslerUniversalInstantCamera *m_camera = nullptr;
 		std::thread m_threadgrabthread;

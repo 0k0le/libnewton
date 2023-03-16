@@ -18,14 +18,6 @@ using namespace Pylon;
 using namespace GenApi;
 using namespace cv;
 
-// Statics
-static bool grabbingframes = false;
-static bool takephoto = false;
-static std::string save_location;
-std::mutex BaslerCamera::m_exitmtx;
-int BaslerCamera::m_width;
-int BaslerCamera::m_height;
-
 bool BaslerCamera::CopySize(int *width, int *height) {
 	if(!m_camera || !width || !height || m_failure)
 		return false;
@@ -63,15 +55,21 @@ bool BaslerCamera::StartGrabbing() {
 		return false;
 
 	m_exitmtx.lock();
-	if(grabbingframes == true)
+	if(m_grabbingframes == true)
 		return false;
 
-	grabbingframes = true;
+	m_grabbingframes = true;
 	m_exitmtx.unlock();
 
 	m_framegrabdata.camera = m_camera;
 	m_framegrabdata.framebuffer = &m_framebuffer;
 	m_framegrabdata.framebuffermtx = &m_framebuffermtx;
+	m_framegrabdata.takephoto = &m_takephoto;
+	m_framegrabdata.savelocation = &m_savelocation;
+	m_framegrabdata.exitmtx = &m_exitmtx;
+	m_framegrabdata.width = &m_width;
+	m_framegrabdata.height = &m_height;
+	m_framegrabdata.grabbingframes = &m_grabbingframes;
 	m_threadgrabthread = std::thread(m_FrameGrabThread, &m_framegrabdata);
 
 	return true;
@@ -83,7 +81,7 @@ bool BaslerCamera::StopGrabbing() {
 		return false;
 
 	m_exitmtx.lock();
-	grabbingframes = false;
+	m_grabbingframes = false;
 	m_exitmtx.unlock();
 
 	m_threadgrabthread.join();
@@ -91,13 +89,13 @@ bool BaslerCamera::StopGrabbing() {
 	return true;
 }
 
-bool BaslerCamera::m_CheckExit() {
+bool BaslerCamera::m_CheckExit(std::mutex *exitmtx, bool *grabbingframes) {
 	bool exit = false;
 
-	m_exitmtx.lock();
-	if(grabbingframes == false)
+	exitmtx->lock();
+	if(*grabbingframes == false)
 		exit = true;
-	m_exitmtx.unlock();
+	exitmtx->unlock();
 
 	return exit;
 }
@@ -118,8 +116,8 @@ bool BaslerCamera::SaveImage(std::string location) {
 		return false;
 
 	m_framebuffermtx.lock();
-	takephoto = true;
-	save_location = location;
+	m_takephoto = true;
+	m_savelocation = location;
 	m_framebuffermtx.unlock();
 
 	return true;
@@ -220,7 +218,7 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 	// Start grabbing frames
 	framegrabdata->camera->StartGrabbing();
 
-	while(!m_CheckExit()) {
+	while(!m_CheckExit(framegrabdata->exitmtx, framegrabdata->grabbingframes)) {
 		framegrabdata->camera->RetrieveResult(8000, grabresult, TimeoutHandling_Return);	
 
 		if(grabresult->GrabSucceeded()) {
@@ -231,23 +229,22 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 				return;
 			}
 
-			//
 			framegrabdata->framebuffermtx->lock();
 
 			Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 
-			if(takephoto) {
-				takephoto = false;
-				imwrite(save_location.c_str(), img);
+			if(*(framegrabdata->takephoto)) {
+				*(framegrabdata->takephoto) = false;
+				imwrite(framegrabdata->savelocation->c_str(), img);
 				continue;
 			}
 
-			resize(img, img, Size(m_width, m_height));
+			resize(img, img, Size(*(framegrabdata->width), *(framegrabdata->height)));
 
 			uint8_t *framebuffer = *(framegrabdata->framebuffer);
 
 			if(framebuffer != nullptr)
-				memcpy(framebuffer, img.data, m_width * m_height * BASLER_NCHANNELS);
+				memcpy(framebuffer, img.data, (*(framegrabdata->width)) * (*(framegrabdata->height)) * BASLER_NCHANNELS);
 
 			framegrabdata->framebuffermtx->unlock();
 		}
