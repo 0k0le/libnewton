@@ -23,7 +23,6 @@ static bool grabbingframes = false;
 static bool takephoto = false;
 static std::string save_location;
 std::mutex BaslerCamera::m_exitmtx;
-std::mutex BaslerCamera::m_framebuffermtx;
 int BaslerCamera::m_width;
 int BaslerCamera::m_height;
 
@@ -72,6 +71,7 @@ bool BaslerCamera::StartGrabbing() {
 
 	m_framegrabdata.camera = m_camera;
 	m_framegrabdata.framebuffer = &m_framebuffer;
+	m_framegrabdata.framebuffermtx = &m_framebuffermtx;
 	m_threadgrabthread = std::thread(m_FrameGrabThread, &m_framegrabdata);
 
 	return true;
@@ -231,8 +231,8 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 				return;
 			}
 
-			//framegrabdata->framebuffermtx->lock();
-			m_framebuffermtx.lock();
+			//
+			framegrabdata->framebuffermtx->lock();
 
 			Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 
@@ -249,8 +249,7 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 			if(framebuffer != nullptr)
 				memcpy(framebuffer, img.data, m_width * m_height * BASLER_NCHANNELS);
 
-			//framegrabdata->framebuffermtx->unlock();
-			m_framebuffermtx.unlock();
+			framegrabdata->framebuffermtx->unlock();
 		}
 	}
 

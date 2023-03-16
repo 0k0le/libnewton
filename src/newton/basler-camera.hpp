@@ -73,7 +73,7 @@ class BaslerCamera {
 		static std::mutex m_exitmtx;
 		static int m_width, m_height;
 
-		static std::mutex m_framebuffermtx;
+		std::mutex m_framebuffermtx;
 		uint8_t *m_framebuffer = nullptr;
 		bool m_failure = false;
 		FRAMEGRABDATA m_framegrabdata;

@@ -32,11 +32,11 @@
 
 #ifdef _DEBUG
 #define DEBUG(str, ...) printf("[DEBUG] " str "\n", ##__VA_ARGS__)
-#define ERR(str, ...) fprintf(stderr, "[ERROR] " str "\n%s\n", ##__VA_ARGS__, strerror(errno))
+#define ERR(str, ...) { fprintf(stderr, "[ERROR] " str "\n%s\n", ##__VA_ARGS__, strerror(errno)); fflush(stderr); }
 #define WARN(str, ...) printf("[WARN] " str "\n", ##__VA_ARGS__)
 #else
 #define DEBUG(str, ...)
-#define ERR(str, ...) fprintf(stderr, "[ERROR] " str "\n", ##__VA_ARGS__)
+#define ERR(str, ...) { fprintf(stderr, "[ERROR] " str "\n", ##__VA_ARGS__); fflush(stderr); }
 #define WARN(str, ...) printf("! " str " !\n", ##__VA_ARGS__)
 #endif
 
