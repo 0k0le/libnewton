@@ -23,9 +23,10 @@ static bool grabbingframes = false;
 static bool takephoto = false;
 static std::string save_location;
 std::mutex BaslerCamera::m_exitmtx;
-std::mutex BaslerCamera::m_framebuffermtx;
 int BaslerCamera::m_width;
 int BaslerCamera::m_height;
+
+static std::mutex mastermutex;
 
 bool BaslerCamera::CopySize(int *width, int *height) {
 	if(!m_camera || !width || !height || m_failure)
@@ -63,6 +64,8 @@ bool BaslerCamera::StartGrabbing() {
 	if(m_camera == nullptr || m_failure)
 		return false;
 
+	m_mastercontinue = false;
+
 	m_exitmtx.lock();
 	if(grabbingframes == true)
 		return false;
@@ -73,6 +76,15 @@ bool BaslerCamera::StartGrabbing() {
 	m_framegrabdata.camera = m_camera;
 	m_framegrabdata.framebuffer = &m_framebuffer;
 	m_threadgrabthread = std::thread(m_FrameGrabThread, &m_framegrabdata);
+
+	while(1) {
+		mastermutex.lock();
+		if(m_mastercontinue)
+			break;
+		mastermutex.unlock();
+	}
+
+	mastermutex.unlock();
 
 	return true;
 }
@@ -202,6 +214,11 @@ bool BaslerCamera::SetGain(double gain) {
 
 // Only one instance of this function can run at a time
 void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
+	mastermutex.lock();
+	std::mutex *framebuffermtx = framegrabdata->framebuffermtx;
+	*(framegrabdata->mastercontinue) = true;
+	mastermutex.unlock();
+
 	CGrabResultPtr grabresult;
 
 	CIntegerParameter width(framegrabdata->camera->GetNodeMap(), "Width");
@@ -231,7 +248,7 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 				return;
 			}
 
-			m_framebuffermtx.lock();
+			framebuffermtx->lock();
 
 			Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 
@@ -248,7 +265,7 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 			if(framebuffer != nullptr)
 				memcpy(framebuffer, img.data, m_width * m_height * BASLER_NCHANNELS);
 
-			m_framebuffermtx.unlock();
+			framebuffermtx->unlock();
 		}
 	}
 
