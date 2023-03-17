@@ -217,7 +217,12 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 		framegrabdata->camera->StartGrabbing();
 
 		while(!m_CheckExit(framegrabdata->exitmtx, framegrabdata->grabbingframes)) {
+			
 			framegrabdata->camera->RetrieveResult(8000, grabresult, TimeoutHandling_Return);	
+
+#ifdef _DEBUG
+			uint64_t now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+#endif
 
 			if(grabresult->GrabSucceeded()) {
 				// Get pointer to basler buffer
@@ -226,10 +231,6 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 					throw GENERIC_EXCEPTION("Failed to get baslerbuffer");
 
 				framegrabdata->framebuffermtx->lock();
-
-#ifdef _DEBUG
-				uint64_t now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-#endif
 
 				Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 
