@@ -13,10 +13,12 @@
 #include "pylon/_BaslerUniversalCameraParams.h"
 #include <pylon/TypeMappings.h>
 #include <opencv2/opencv.hpp>
+#include <chrono>
 
 using namespace Pylon;
 using namespace GenApi;
 using namespace cv;
+using namespace std::chrono;
 
 bool BaslerCamera::CopySize(int *width, int *height) {
 	if(!m_camera || !width || !height || m_failure)
@@ -224,6 +226,8 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 					throw GENERIC_EXCEPTION("Failed to get baslerbuffer");
 
 				framegrabdata->framebuffermtx->lock();
+				
+				uint64_t now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
 				Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 
@@ -243,7 +247,10 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 
 				if(framebuffer != nullptr)
 					memcpy(framebuffer, img.data, reqwidth * reqheight * BASLER_NCHANNELS);
-
+				
+				uint64_t after = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+				DEBUG("Frame Copy and Resize Duration: %ld", after-now);
+				
 				framegrabdata->framebuffermtx->unlock();
 			}
 		}
