@@ -226,8 +226,10 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 					throw GENERIC_EXCEPTION("Failed to get baslerbuffer");
 
 				framegrabdata->framebuffermtx->lock();
-				
+
+#ifdef _DEBUG
 				uint64_t now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+#endif
 
 				Mat img = Mat(Size(static_cast<int>(width.GetValue()), static_cast<int>(height.GetValue())), CV_8UC3, baslerbuffer); 
 
@@ -247,10 +249,12 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 
 				if(framebuffer != nullptr)
 					memcpy(framebuffer, img.data, reqwidth * reqheight * BASLER_NCHANNELS);
-				
+			
+#ifdef _DEBUG
 				uint64_t after = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 				DEBUG("Frame Copy and Resize Duration: %ld", after-now);
-				
+#endif
+
 				framegrabdata->framebuffermtx->unlock();
 			}
 		}
