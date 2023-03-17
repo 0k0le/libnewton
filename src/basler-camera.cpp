@@ -230,6 +230,7 @@ void BaslerCamera::m_FrameGrabThread(PFRAMEGRABDATA framegrabdata) {
 				if(*(framegrabdata->takephoto)) {
 					*(framegrabdata->takephoto) = false;
 					imwrite(framegrabdata->savelocation->c_str(), img);
+					framegrabdata->framebuffermtx->unlock();
 					continue;
 				}
 
