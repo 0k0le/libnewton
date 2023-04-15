@@ -31,12 +31,11 @@ namespace galil {
 		GClose(_con);
 	}
 
-	void GalilController::Move(char axis, uint32_t position) {
+	void GalilController::Move(char axis, int32_t position) {
 		char buffer[32];
 		snprintf(buffer, 32, "PA%c=%d", axis, position);
 
 		GCmd(_con, buffer);
-
 	}
 
 	void GalilController::WaitForMotionComplete(char axis) {
@@ -79,6 +78,15 @@ namespace galil {
 		GCmd(_con, buffer);
 	}
 
+	void GalilController::ReInit(char axis) {
+		Stop(axis);
+
+		// turn servo on
+		GCmd(_con, "SH");
+		DefinePositionZero(axis);
+		_EnablePositionTracking(axis);
+	}
+
 	void GalilController::_Init() {
 		// Stop all motors
 		for(auto a : _axises)
@@ -88,7 +96,7 @@ namespace galil {
 		GCmd(_con, "SH");
 
 		for(auto a : _axises) {
-			_DefinePositionZero(a);
+			DefinePositionZero(a);
 			Speed(a, GALIL_DEFAULT_SPEED);
 			Accel(a, GALIL_DEFAULT_ACCEL);
 			_EnablePositionTracking(a);
@@ -101,6 +109,16 @@ namespace galil {
 		snprintf(buffer, 32, "MG @AN[%d]", input);
 
 		GCmdD(_con, buffer, &ret);
+
+		return ret;
+	}
+
+	int GalilController::GetPosition(char axis) {
+		int ret;
+		char buffer[32];
+		snprintf(buffer, 32, "MG _TP%c", axis);
+
+		GCmdI(_con, buffer, &ret);
 
 		return ret;
 	}
@@ -132,13 +150,12 @@ namespace galil {
 		return false;
 	}
 
-	void GalilController::_DefinePositionZero(char axis) {
+	void GalilController::DefinePositionZero(char axis) {
 		char buffer[32];
 
 		snprintf(buffer, 32, "DP%c=0", axis);
 
 		DEBUG("Define Position Command: %s", buffer);
-
 		GCmd(_con, buffer);
 	}
 
@@ -167,7 +184,7 @@ extern "C" {
 		delete galilController;
 	}
 
-	void MoveGalil(char axis, uint32_t pos) {
+	void MoveGalil(char axis, int32_t pos) {
 		if(!isrunning || !galilController)
 			return;
 
@@ -218,6 +235,34 @@ extern "C" {
 			return 0.0;
 
 		return galilController->ReadAnalogInput(input);
+	}
+
+	void DefinePositionZero(char axis) {
+		if(!galilController)
+			return;
+
+		return galilController->DefinePositionZero(axis);
+	}
+
+	void GalilReInit(char axis) {
+		if(!galilController)
+			return;
+
+		galilController->ReInit(axis);
+	}
+
+	void GalilWaitForMotionComplete(char axis) {
+		if(!galilController)
+			return;
+
+		galilController->WaitForMotionComplete(axis);
+	}
+
+	int GalilGetPosition(char axis) {
+		if(!galilController)
+			return -1;
+
+		return galilController->GetPosition(axis);
 	}
 
 }

@@ -32,16 +32,18 @@ namespace galil {
 			GalilController(std::string address, std::vector<char> axises);
 			~GalilController();
 
-			void Move(char axis, uint32_t position);
+			void ReInit(char axis);
+			void Move(char axis, int32_t position);
 			void Stop(char axis);
 			void Accel(char axis, uint32_t accel);
 			void Speed(char axis, uint32_t speed);
 			void WaitForMotionComplete(char axis);
 			bool ReadLimitSwitch(limitnum limit);
 			double ReadAnalogInput(uint32_t input);
+			void DefinePositionZero(char axis);
+			int GetPosition(char axis);
 		private:
 			void _Init();
-			void _DefinePositionZero(char axis);
 			void _EnablePositionTracking(char axis);
 
 			std::vector<char> _axises;
@@ -56,11 +58,15 @@ namespace galil {
 extern "C" {
 	void WINEXPORT CreateGalilController(char *axises, uint32_t numaxises, char *ip);
 	void WINEXPORT DeleteGalilController();
-	void WINEXPORT MoveGalil(char axis, uint32_t pos);
+	void WINEXPORT MoveGalil(char axis, int32_t pos);
 	void WINEXPORT GalilVelocity(char axis, uint32_t vel);
 	void WINEXPORT StopGalil(char axis);
 	int WINEXPORT ReadLimitSwitch(uint32_t digitalinput);
 	double WINEXPORT GalilReadAnalogInput(uint32_t input);
+	void WINEXPORT DefinePositionZero(char axis);
+	void WINEXPORT GalilReInit(char axis);
+	void WINEXPORT GalilWaitForMotionComplete(char axis);
+	int WINEXPORT GalilGetPosition(char axis);
 }
 
 #endif
