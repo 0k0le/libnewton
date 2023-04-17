@@ -3,25 +3,39 @@
  *
  * Newton Laboratories, libnewton
  *
- * \\\\\\\\\\\\\\\\\\\\\\\\\\\
- *  \--\ basler-camera.hpp \--\
- *   \\\\\\\\\\\\\\\\\\\\\\\\\\\
+ * \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ *  \--\ basler-camera-cli.hpp \--\
+ *   \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ * 
+ * FOR C#
  */
 
 #pragma once
 
+#include <string>
 
-#include "macro.hpp"
-#include "heap.hpp"
+namespace Pylon {
+    class CBaslerUniversalInstantCamera;
+    class CTlFactory;
+    class DeviceInfoList_t {
+        public:
+            class const_iterator;
+    };
+};
 
-#include <thread>
-#include <mutex>
+namespace std {
+    class mutex {
+        public:
+            mutex::mutex();
+    };
+    class thread {
+        public:
+            thread::thread();
+    };
+}
 
-// Pylon includes
-#include <pylon/PylonIncludes.h>
-#include <pylon/BaslerUniversalInstantCamera.h>
+typedef unsigned char uint8_t;
 
-// Using a struct so that the code is simple to modify
 typedef struct FrameGrabThreadData {
 	Pylon::CBaslerUniversalInstantCamera *camera;
 	uint8_t **framebuffer;
@@ -34,9 +48,7 @@ typedef struct FrameGrabThreadData {
 	std::string *savelocation;
 } FRAMEGRABDATA, *PFRAMEGRABDATA;
 
-#define BASLER_NCHANNELS 3
-
-class WINEXPORT BaslerCamera {
+class BaslerCamera {
 	public:
 		BaslerCamera(const char *camera_serial, int width, int height);
 		~BaslerCamera();
@@ -90,15 +102,41 @@ class WINEXPORT BaslerCamera {
 		std::thread m_threadgrabthread;
 };
 
-#ifdef _CSHARP
+namespace Newton::Basler {
+public ref class BaslerCameraWrapper {
+    BaslerCamera *m_bcamera = nullptr;
 
-extern "C" {
+	public:
+		BaslerCameraWrapper(const char *camera_serial, int width, int height);
+		~BaslerCameraWrapper();
+        !BaslerCameraWrapper();
 
-void WINEXPORT InitializeBaslerCamera(char *serial, int width, int height);
-void WINEXPORT FreeBaslerCamera();
-void WINEXPORT ChangeBaslerSize(int width, int height);
-bool WINEXPORT CopyBaslerFrameToBuffer(uint8_t *buffer);
+		// Start grabbing frames
+		bool StartGrabbing();
+		bool StopGrabbing();
 
+		// This will inform the frame grabber thread how to resize the frame
+		bool InformSize(int width, int height);
+
+		// Copy frame
+		bool CopyFrameBuffer(uint8_t *dest);
+		
+		// Fetch currently used resize values
+		bool CopySize(int *width, int *height);
+		
+		// Save full sized image
+		bool SaveImage(std::string location);
+		
+		// Exposure
+		bool SetExposure(double exposuretime);
+		bool GetMaxExposure(double *exposuretime);
+		bool GetMinExposure(double *exposuretime);
+		
+		// Gain/Brightness
+		bool SetAutoGain(bool autogain);
+		bool SetBrightness(double value);
+		bool GetMaxGain(double *maxgain);
+		bool GetMinGain(double *mingain);
+		bool SetGain(double gain);
+};
 }
-
-#endif
