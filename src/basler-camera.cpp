@@ -8,6 +8,9 @@
  *   \\\\\\\\\\\\\\\\\\\\\\\\\\\
  */
 
+// The fact that I need this shit is retarded
+//#define CV_IGNORE_DEBUG_BUILD_GUARD
+
 #include "newton/basler-camera.hpp"
 #include "opencv2/imgproc.hpp"
 #include "pylon/_BaslerUniversalCameraParams.h"
