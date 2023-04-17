@@ -8,7 +8,7 @@ find_package(pylon REQUIRED)
 find_package(OpenCV REQUIRED)
 
 link_directories( ${OpenCV_LIB_PATH}
-                ${PROJECT_SOURCE_DIR}/3rd/SOEM/build/build64/Release
+                ${PROJECT_SOURCE_DIR}/3rd/SOEM/build/Release
                 "C:\\pcap\\Lib\\x64"
                 "C:\\Program Files (x86)\\Galil\\gclib\\lib\\dynamic\\x64"
                 "C:\\Program Files (x86)\\Galil\\gclib\\dll\\x64"
