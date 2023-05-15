@@ -37,7 +37,7 @@ bits.cpp=$(SRCDIR)/bits.cpp
 
 $(BIN): init $(nsignals.o) $(heap.o) $(server.o) $(net.o) $(client.o) $(bits.o)
 	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(server.o) $(net.o) $(client.o) $(bits.o) $(LDOPTS) -o $(BIN)
-	#ar rcs $(STATICBIN)	$(INTDIR)/*
+	ar rcs $(STATICBIN)	$(INTDIR)/*
 
 $(bits.o): $(bits.cpp)
 	$(CC) $(bits.cpp) $(BUILDOPTS) -o $(bits.o)
