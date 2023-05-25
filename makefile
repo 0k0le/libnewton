@@ -5,10 +5,12 @@
 
 DEBUG=
 
-CC=g++
-BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g
-LDOPTS=
+SYSROOT ?= /
+CXX ?= g++
+BUILDOPTS=-Wall -Wextra -pedantic -fpic  -c -O2 -g -isysroot $(SYSROOT)
+LDOPTS=-isysroot $(SYSROOT)
 LDSTATICOPTS=
+AR ?= ar
 
 BINDIR=bin/
 BIN=bin/libnewton.so
@@ -36,26 +38,26 @@ bits.o=$(INTDIR)/bits.o
 bits.cpp=$(SRCDIR)/bits.cpp
 
 $(BIN): init $(nsignals.o) $(heap.o) $(server.o) $(net.o) $(client.o) $(bits.o)
-	$(CC) -fPIC -shared $(nsignals.o) $(heap.o) $(server.o) $(net.o) $(client.o) $(bits.o) $(LDOPTS) -o $(BIN)
-	ar rcs $(STATICBIN)	$(INTDIR)/*
+	$(CXX) -fPIC -shared $(nsignals.o) $(heap.o) $(server.o) $(net.o) $(client.o) $(bits.o) $(LDOPTS) -o $(BIN)
+	$(AR) rcs $(STATICBIN)	$(INTDIR)/*
 
 $(bits.o): $(bits.cpp)
-	$(CC) $(bits.cpp) $(BUILDOPTS) -o $(bits.o)
+	$(CXX) $(bits.cpp) $(BUILDOPTS) -o $(bits.o)
 
 $(nsignals.o): $(nsignals.cpp)
-	$(CC) $(nsignals.cpp) $(BUILDOPTS) -o $(nsignals.o)
+	$(CXX) $(nsignals.cpp) $(BUILDOPTS) -o $(nsignals.o)
 
 $(heap.o): $(heap.cpp)
-	$(CC) $(heap.cpp) $(BUILDOPTS) -o $(heap.o)
+	$(CXX) $(heap.cpp) $(BUILDOPTS) -o $(heap.o)
 
 $(net.o): $(net.cpp)
-	$(CC) $(net.cpp) $(BUILDOPTS) -o $(net.o)
+	$(CXX) $(net.cpp) $(BUILDOPTS) -o $(net.o)
 
 $(server.o): $(server.cpp)
-	$(CC) $(server.cpp) $(BUILDOPTS) -o $(server.o)
+	$(CXX) $(server.cpp) $(BUILDOPTS) -o $(server.o)
 
 $(client.o): $(client.cpp)
-	$(CC) $(client.cpp) $(BUILDOPTS) -o $(client.o)
+	$(CXX) $(client.cpp) $(BUILDOPTS) -o $(client.o)
 
 init:
 	mkdir -p bin/int
