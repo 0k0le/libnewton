@@ -27,14 +27,15 @@ namespace net {
 			bool IsActive();
 
 		private:
-		#ifdef WIN32
+		#ifdef _WIN32
 			SOCKET m_sockfd;
+			struct addrinfo *result, hints;
 		#else
 			int m_sockfd = -1;
+			struct sockaddr_in m_clientaddr;
 		#endif
 			int m_port;
 			bool m_active = false;
-			struct sockaddr_in m_clientaddr;
 
 	};
 

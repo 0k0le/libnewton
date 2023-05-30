@@ -14,6 +14,43 @@
 #include <string.h>
 
 namespace net {
+#ifdef _WIN32
+	TCPClient::TCPClient(std::string address, const int port) : m_port{port} {
+		try {
+			if(!InitializeWS2())
+				ERR("Failed to initialize WS2");
+
+			ZeroMemory(&hints, sizeof(hints));
+			hints.ai_family = AF_INET;
+			hints.ai_socktype = SOCK_STREAM;
+			hints.ai_protocol = IPPROTO_TCP;
+
+			char port_s[64];
+			ZeroMemory(port_s, 64);
+			snprintf(port_s, 64, "%d", port);
+
+			if(getaddrinfo(address.c_str(), port_s, &hints, &result) != 0)
+				throw neterror("Failed to getaddrinfo", errno);
+
+			if((m_sockfd = socket(result->ai_family, result->ai_socktype, result->ai_protocol)) == INVALID_SOCKET)
+				throw neterror("Failed to socket()", errno);
+
+			if(connect(m_sockfd, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR)
+				throw neterror("Failed to connect()", errno);
+
+			u_long mode = 1;
+			ioctlsocket(m_sockfd, FIONBIO, &mode);
+
+			freeaddrinfo(result);
+
+			m_active = true;
+
+		} catch (neterror err) {
+			m_active = false;
+			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+		}
+	}
+#else
 	TCPClient::TCPClient(std::string address, const int port) : m_port{port} {
 		try {
 	
@@ -41,7 +78,24 @@ namespace net {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
 		}
 	}
+#endif
+#ifdef _WIN32
+	int TCPClient::Read(void *buffer, size_t size) {
+		int ret = 0;
 
+		try {
+			ret = read(m_sockfd, buffer, size);
+			if(ret != WSAEWOULDBLOCK && ret != EWOULDBLOCK)
+				throw neterror("Failed to read()", errno);
+
+			ret = 0;
+		} catch(neterror err) {
+			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+		}
+
+		return ret;
+	}
+#else
 	int TCPClient::Read(void *buffer, size_t size) {
 		int ret = 0;
 
@@ -58,7 +112,24 @@ namespace net {
 
 		return ret;
 	}
+#endif
+#ifdef _WIN32
+	int TCPClient::Write(void *buffer, size_t size) {
+		int ret = 0;
 
+		try {
+			ret = write(m_sockfd, buffer, size);
+			if(ret != WSAEWOULDBLOCK && ret != EWOULDBLOCK)
+				throw neterror("Failed to write()", errno);
+
+			ret = 0;
+		} catch(neterror err) {
+			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+		}
+
+		return ret;
+	}
+#else
 	int TCPClient::Write(void *buffer, size_t size) {
 		int ret = 0;
 
@@ -75,6 +146,7 @@ namespace net {
 
 		return ret;
 	}
+#endif
 
 	int TCPClient::StreamRead(void *buffer, size_t size) {
 		int ret = 0, total = 0;

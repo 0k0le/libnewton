@@ -10,12 +10,17 @@
 
 #pragma once
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <io.h>
+
+// Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
+#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
 
 #define read(...) _read(##__VA_ARGS__)
 #define write(...) _write(##__VA_ARGS__)
@@ -36,6 +41,8 @@
 #include <string>
 
 namespace net {
+	bool InitializeWS2();
+
 	typedef struct ClientConnection {
 		int sockfd;
 		struct sockaddr_in clientaddr;
