@@ -1,3 +1,4 @@
 [submodule "3rd/beaglebone-crosscompiler"]
 	path = 3rd/beaglebone-crosscompiler
 	url = https://github.com/0k0le/beaglebone-crosscompiler.git
+	branch = stripped

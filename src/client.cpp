@@ -84,8 +84,8 @@ namespace net {
 		int ret = 0;
 
 		try {
-			ret = read(m_sockfd, buffer, size);
-			if(ret != WSAEWOULDBLOCK && ret != EWOULDBLOCK)
+			ret = recv(m_sockfd, (char *)buffer, size, 0);
+			if(ret != WSAEWOULDBLOCK)
 				throw neterror("Failed to read()", errno);
 
 			ret = 0;
@@ -118,8 +118,8 @@ namespace net {
 		int ret = 0;
 
 		try {
-			ret = write(m_sockfd, buffer, size);
-			if(ret != WSAEWOULDBLOCK && ret != EWOULDBLOCK)
+			ret = send(m_sockfd, (char *)buffer, size, 0);
+			if(ret != WSAEWOULDBLOCK)
 				throw neterror("Failed to write()", errno);
 
 			ret = 0;
