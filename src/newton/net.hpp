@@ -33,6 +33,8 @@
 #include <unistd.h>
 #endif
 
+#include "macro.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -41,7 +43,9 @@
 #include <string>
 
 namespace net {
+#ifdef _WIN32
 	bool InitializeWS2();
+#endif
 
 	typedef struct ClientConnection {
 		int sockfd;

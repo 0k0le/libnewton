@@ -15,6 +15,7 @@ namespace net {
 	// neterror constructor
 	neterror::neterror(std::string message, int errnum) : msg{message}, error{errnum} {}
 
+#ifdef _WIN32
 	bool InitializeWS2() {
 		static bool init = false;
 		WSADATA wsaData;
@@ -29,5 +30,6 @@ namespace net {
 
 		return true;
 	}
+#endif
 
 } // namespace net

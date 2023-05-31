@@ -12,7 +12,7 @@
 
 #include "macro.hpp"
 
-#ifdef WIN32
+#ifdef _WIN32
 #define uint16_t unsigned short
 #define uint32_t unsigned int
 #else

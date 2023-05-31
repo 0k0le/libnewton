@@ -14,7 +14,7 @@
 
 namespace net {
 	
-	class TCPClient {
+	class WINEXPORT TCPClient {
 		public:
 			TCPClient(std::string address, const int port);
 			~TCPClient();

@@ -86,11 +86,12 @@ namespace net {
 		try {
 			ret = recv(m_sockfd, (char *)buffer, size, 0);
 			if(ret != WSAEWOULDBLOCK)
-				throw neterror("Failed to read()", errno);
+				throw neterror("Failed to recv()", errno);
 
 			ret = 0;
 		} catch(neterror err) {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+			ret = -1;
 		}
 
 		return ret;
@@ -120,11 +121,12 @@ namespace net {
 		try {
 			ret = send(m_sockfd, (char *)buffer, size, 0);
 			if(ret != WSAEWOULDBLOCK)
-				throw neterror("Failed to write()", errno);
+				throw neterror("Failed to send()", errno);
 
 			ret = 0;
 		} catch(neterror err) {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+			ret = -1;
 		}
 
 		return ret;
