@@ -85,7 +85,7 @@ namespace net {
 
 		try {
 			ret = recv(m_sockfd, (char *)buffer, size, 0);
-			if(ret != WSAEWOULDBLOCK)
+			if(ret == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
 				throw neterror("Failed to recv()", errno);
 
 			ret = 0;
@@ -120,7 +120,7 @@ namespace net {
 
 		try {
 			ret = send(m_sockfd, (char *)buffer, size, 0);
-			if(ret != WSAEWOULDBLOCK)
+			if(ret == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
 				throw neterror("Failed to send()", errno);
 
 			ret = 0;

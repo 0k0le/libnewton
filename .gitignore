@@ -3,3 +3,4 @@ bin/**
 build/**
 coredump
 *.swp
+tests/netburner/build
