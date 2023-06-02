@@ -88,10 +88,9 @@ namespace net {
 			if(ret == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
 				throw neterror("Failed to recv()", errno);
 
-			ret = 0;
 		} catch(neterror err) {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
-			ret = -1;
+			return -1;
 		}
 
 		return ret;
@@ -105,10 +104,10 @@ namespace net {
 				if(errno != EAGAIN && errno != EWOULDBLOCK)
 					throw neterror("Failed to read()", errno);
 
-				ret = 0;
 			}
 		} catch(neterror err) {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+			return -1;
 		}
 
 		return ret;
@@ -122,11 +121,10 @@ namespace net {
 			ret = send(m_sockfd, (char *)buffer, size, 0);
 			if(ret == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
 				throw neterror("Failed to send()", errno);
-
-			ret = 0;
+		
 		} catch(neterror err) {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
-			ret = -1;
+			return -1;
 		}
 
 		return ret;
@@ -139,11 +137,11 @@ namespace net {
 			if((ret = write(m_sockfd, buffer, size)) == -1) {
 				if(errno != EAGAIN && errno != EWOULDBLOCK)
 					throw neterror("Failed to write()", errno);
-
-				ret = 0;
+			
 			}
 		} catch(neterror err) {
 			ERR("[0x%04x] %s", err.error, err.msg.c_str());
+			return -1;
 		}
 
 		return ret;
